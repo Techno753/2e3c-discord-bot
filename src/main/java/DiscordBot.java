@@ -12,7 +12,7 @@ public class DiscordBot {
         ct.writeJson();
 
         // Initialise connection to Discord
-        JDA jda = new JDABuilder("NjY0NjIxOTUxMDM3NDcyNzk4.XhZvgg.eX_1dCX6qODi4mrRhFFDvDM9dAE").build();
+        JDA jda = new JDABuilder("NjY0NjIxOTUxMDM3NDcyNzk4.XhfasQ.m8P8oMWoGsY8eRt456tg1rubJfU").build();
 
         // User Events
         jda.addEventListener(new GenericEvent());

@@ -6,6 +6,9 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import tools.ConfigTool;
+import tools.VerifyMsgTool;
+
+import java.util.regex.Pattern;
 
 
 /*
@@ -43,21 +46,38 @@ public class ServerConfigEvent extends ListenerAdapter {
     public void onGuildMessageReceived(GuildMessageReceivedEvent gmre) {
         // Get message as raw String
         String msgIn = gmre.getMessage().getContentRaw();
-        System.out.println(msgIn);
         String msgOut = "";
         Boolean msgSet = false;
 
-        switch (msgIn.toLowerCase().split("")[0]) {
-            // Displays info of servers the bot is in. BC.
-            case "servers":
-                msgOut = ConfigTool.getString();
+        String cmdString = msgIn.toLowerCase().substring(1);
+        System.out.println("input: " + cmdString);
 
+        // Gets information on all servers
+        if (Pattern.matches("^servers$", cmdString)) {
+            if (VerifyMsgTool.isBotCreator(gmre) && VerifyMsgTool.hasCorrectPrefix(gmre)) {
+                msgOut = ConfigTool.getStringAll();
                 msgSet = true;
-                break;
+            }
 
-            // Sets the command prefix for the server. BA, BC.
-            case "prefix":
+        // Gets information on the server messaged on
+        } else if (Pattern.matches("^thisserver$", cmdString)) {
+            if ((VerifyMsgTool.isBotAdmin(gmre) || VerifyMsgTool.isBotCreator(gmre))
+                    || VerifyMsgTool.hasCorrectPrefix(gmre)) {
+                msgOut = ConfigTool.getStringByID(gmre.getGuild().getId());
+                msgSet = true;
+            }
 
+        // Changes the command prefix for a server
+        } else if (Pattern.matches("^prefix .$", cmdString)) {
+            if ((VerifyMsgTool.isBotAdmin(gmre) && VerifyMsgTool.hasCorrectPrefix(gmre))
+                    || VerifyMsgTool.isBotCreator(gmre)) {
+                String prefix = msgIn.split(" ")[1];
+                ConfigTool.setServerPrefixByID(gmre.getGuild().getId(),
+                        msgIn.split(" ")[1]);
+                ConfigTool.writeJson();
+                msgOut = "Server prefix set to: " + prefix;
+                msgSet = true;
+            }
         }
 
         System.out.println(msgOut);
