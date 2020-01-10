@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import tools.ConfigTool;
 
+import java.util.regex.Pattern;
+
 
 /*
  * Event Listener for Server related events
@@ -18,43 +20,44 @@ public class ServerInfoEvent extends ListenerAdapter {
     public void onGuildMessageReceived(GuildMessageReceivedEvent gmre) {
         // Get message as raw String
         String msgIn = gmre.getMessage().getContentRaw();
+        String cmdString = "";
         String msgOut = "";
         boolean msgSet = false;
 
-        switch (msgIn.toLowerCase()) {
-            case "!cinfo":
-                try {
-                    eb.setTitle("Channel Information");
-                    eb.addField("Channel Name", gmre.getChannel().getName(), true);
-                    eb.addField("Channel Topic", gmre.getChannel().getTopic(), true);
-                    eb.addField("Is NSFW", Boolean.toString(gmre.getChannel().isNSFW()), true);
-                    eb.addField("Channel ID", gmre.getChannel().getId(), true);
-                    eb.setThumbnail(gmre.getGuild().getIconUrl());
+        if (msgIn.length() > 1) {
+            cmdString = msgIn.toLowerCase().substring(1);
+        }
 
-                    msgSet = true;
-                } catch (Exception e) {
-                    System.out.println("Failed to obtain channel information.");
-                }
-                break;
+        if (Pattern.matches("^(?i)cinfo$", cmdString)) {
+            try {
+                eb.setTitle("Channel Information");
+                eb.addField("Channel Name", gmre.getChannel().getName(), true);
+                eb.addField("Channel Topic", gmre.getChannel().getTopic(), true);
+                eb.addField("Is NSFW", Boolean.toString(gmre.getChannel().isNSFW()), true);
+                eb.addField("Channel ID", gmre.getChannel().getId(), true);
+                eb.setThumbnail(gmre.getGuild().getIconUrl());
 
-            case "!sinfo":
-                try {
-                    eb.setTitle("Server Information");
-                    eb.addField("Server Name", gmre.getGuild().getName(), true);
-                    eb.addField("Server ID", gmre.getGuild().getId(), true);
-                    eb.setThumbnail(gmre.getGuild().getIconUrl());
+                msgSet = true;
+            } catch (Exception e) {
+                System.out.println("Failed to obtain channel information.");
+            }
+        } else if (Pattern.matches("^(?i)sinfo$", cmdString)) {
+            try {
+                eb.setTitle("Server Information");
+                eb.addField("Server Name", gmre.getGuild().getName(), true);
+                eb.addField("Server ID", gmre.getGuild().getId(), true);
+                eb.setThumbnail(gmre.getGuild().getIconUrl());
 
-                    msgSet = true;
-                } catch (Exception e) {
-                    System.out.println("Failed to obtain server information.");
-                }
-                break;
+                msgSet = true;
+            } catch (Exception e) {
+                System.out.println("Failed to obtain server information.");
+            }
         }
 
         if (msgSet) {
             gmre.getChannel().sendMessage(eb.build()).queue();
         }
-//        msgSet = false;
+//      msgSet = false;
         eb.clear();
     }
 }
