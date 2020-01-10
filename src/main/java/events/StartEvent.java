@@ -9,7 +9,7 @@ public class StartEvent extends ListenerAdapter {
     public void onReady(ReadyEvent re) {
         ConfigTool.readConfig();
         System.out.println("Config information:\n");
-        System.out.print(ConfigTool.getStringAll(re));
+        System.out.print(ConfigTool.getStringAll(re.getJDA()));
         System.out.println("Ready!");
     }
 }

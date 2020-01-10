@@ -58,7 +58,7 @@ public class ServerConfigEvent extends ListenerAdapter {
         // Gets information on all servers
         if (Pattern.matches("^(?i)servers$", cmdString)) {
             if (VerifyMsgTool.isBotCreator(gmre) && VerifyMsgTool.hasCorrectPrefix(gmre)) {
-                msgOut = ConfigTool.getStringAll(gmre);
+                msgOut = ConfigTool.getStringAll(gmre.getJDA());
                 msgSet = true;
             }
 
@@ -67,7 +67,7 @@ public class ServerConfigEvent extends ListenerAdapter {
             if ((VerifyMsgTool.isBotAdmin(gmre) || VerifyMsgTool.isBotCreator(gmre))
                     || VerifyMsgTool.hasCorrectPrefix(gmre)) {
 
-                msgOut = ConfigTool.getStringByID(gmre.getGuild().getId(), gmre);
+                msgOut = ConfigTool.getStringByID(gmre.getGuild().getId(), gmre.getJDA());
                 msgSet = true;
             }
 
@@ -88,15 +88,53 @@ public class ServerConfigEvent extends ListenerAdapter {
             Pattern addbaPat = Pattern.compile("^(?i)addba <@!?(\\d+)>$");
             Matcher m = addbaPat.matcher(cmdString);
 
+            // Get user ID from command
             if (m.find()) {
                 String userID = m.group(1);
-                System.out.println(userID);
+
+                // Check that user exists on the server
+                int result = ConfigTool.addBotAdminByID(gmre.getGuild().getId(), userID, gmre.getJDA());
+                if (result == 1) {
+                    msgOut = "Successfully added bot admin: " + gmre.getGuild().getMemberById(userID).getUser().getName();
+                    ConfigTool.writeConfig();
+                } else if (result == -3) {
+                    msgOut = "Error adding bot admin.";
+                } else if (result == -2) {
+                    msgOut = "Error adding bot admin. User not found on this server.";
+                } else if (result == -1) {
+                    msgOut = "Error adding bot admin. Server not found.";
+                }
+                msgSet = true;
             }
 
         // Removes a bot admin for the server
         } else if (Pattern.matches("^(?i)remba <@!?\\d+>$", cmdString)) {
-            Pattern addbaPat = Pattern.compile("^(?i)remba <@!?(\\d+)>$");
-            Matcher m = addbaPat.matcher(cmdString);
+            Pattern rembaPat = Pattern.compile("^(?i)remba <@!?(\\d+)>$");
+            Matcher m = rembaPat.matcher(cmdString);
+
+            // Get user ID from command
+            if (m.find()) {
+                String userID = m.group(1);
+
+                int result = ConfigTool.removeBotAdminByID(gmre.getGuild().getId(), userID, gmre.getJDA());
+                if (result == 1) {
+                    msgOut = "Successfully removed bot admin: " + gmre.getGuild().getMemberById(userID).getUser().getName();
+                    ConfigTool.writeConfig();
+                } else if (result == -3) {
+                    msgOut = "Error removing bot admin. User is not an existing bot admin.";
+                } else if (result == -2) {
+                    msgOut = "Error removing bot admin. User was not found on this server.";
+                } else if (result == -1) {
+                    msgOut = "Error removing bot admin. Server not found.";
+                }
+                msgSet = true;
+            }
+
+
+        // Removes a bot admin for the server
+        } else if (Pattern.matches("^(?i)remba <@!?\\d+>$", cmdString)) {
+            Pattern rembaPat = Pattern.compile("^(?i)remba <@!?(\\d+)>$");
+            Matcher m = rembaPat.matcher(cmdString);
 
             if (m.find()) {
                 String userID = m.group(1);

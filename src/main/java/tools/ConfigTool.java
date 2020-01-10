@@ -1,9 +1,7 @@
 package tools;
 
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,7 +9,6 @@ import org.json.simple.parser.JSONParser;
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public final class ConfigTool {
     private static ArrayList<ServerConfig> serverConfigs = new ArrayList<>();
@@ -117,17 +114,17 @@ public final class ConfigTool {
 
 
     // Gets info for all servers as a string
-    public static String getStringAll(Event e) {
+    public static String getStringAll(JDA jda) {
         String out = "";
         for (ServerConfig sc : serverConfigs) {
-            out += getStringByID(sc.getServerID(), e) + "\n";
+            out += getStringByID(sc.getServerID(), jda) + "\n";
         }
 
         return out;
     }
 
     // Gets info for single server as a string
-    public static String getStringByID(String id, Event e) {
+    public static String getStringByID(String id, JDA jda) {
         String out = "";
         for (ServerConfig sc : serverConfigs) {
             if (sc.getServerID().equals(id)) {
@@ -136,7 +133,7 @@ public final class ConfigTool {
 
                 for (String bcID : sc.getBotchannels()) {
                     try {
-                        botChannelNames.add(e.getJDA().getTextChannelById(bcID).getName());
+                        botChannelNames.add(jda.getTextChannelById(bcID).getName());
                     } catch (NullPointerException npe) {
                         System.out.println("ERROR: Invalid Bot Channel ID.");
                     }
@@ -145,7 +142,7 @@ public final class ConfigTool {
                 ArrayList<Object> botAdminNames = new ArrayList<>();
                 for (String baID : sc.getBotAdminIDs()) {
                     try {
-                        botAdminNames.add(e.getJDA().getUserById(baID).getName());
+                        botAdminNames.add(jda.getUserById(baID).getName());
                     } catch (NullPointerException npe) {
                         System.out.println("ERROR: Invalid Bot Admin ID.");
                     }
@@ -165,45 +162,81 @@ public final class ConfigTool {
     }
 
     public static String getServerNameByID(String id) {
-        for (ServerConfig sc : serverConfigs) {
-            if (sc.getServerID().equals(id)) {
-                return sc.getServerName();
-            }
+        ServerConfig sc = getServerConfigByID(id);
+        if (sc != null) {
+            return sc.getServerName();
         }
         return null;
     }
 
     public static String getBotPrefixByID(String id) {
-        for (ServerConfig sc : serverConfigs) {
-            if (sc.getServerID().equals(id)) {
-                return sc.getBotPrefix();
-            }
+        ServerConfig sc = getServerConfigByID(id);
+        if (sc != null) {
+            return sc.getBotPrefix();
         }
         return null;
     }
 
-    public static void setServerPrefixByID(String id, String prefix) {
-        for (ServerConfig sc : serverConfigs) {
-            if (sc.getServerID().equals(id)) {
-                sc.setBotPrefix(prefix);
-                break;
-            }
+    public static int setServerPrefixByID(String id, String prefix) {
+        ServerConfig sc = getServerConfigByID(id);
+        if (sc != null) {
+            sc.setBotPrefix(prefix);
+            return 1;
+        } else {
+            return -1;
         }
     }
 
     public static ArrayList<String> getBotChannelsByID(String id) {
-        for (ServerConfig sc : serverConfigs) {
-            if (sc.getServerID().equals(id)) {
-                return sc.getBotchannels();
-            }
+        ServerConfig sc = getServerConfigByID(id);
+        if (sc != null) {
+            return sc.getBotchannels();
         }
         return null;
     }
 
     public static ArrayList<String> getBotAdminsByID(String id) {
+        ServerConfig sc = getServerConfigByID(id);
+        if (sc != null) {
+            return sc.getBotAdminIDs();
+        }
+        return null;
+    }
+
+    // Adds a bot admin to a server by server and user ID. Returns int based on result
+    // 1 = success, -1 = error.
+    public static int addBotAdminByID(String serverID, String userID, JDA jda) {
+        ServerConfig sc = getServerConfigByID(serverID);
+        if (sc != null) {
+            if (VerifyIDTool.verifyUserInServer(serverID, userID, jda) == 1) {
+                if (sc.addBotAdminID(userID)) {
+                    return 1;
+                }
+                return -3;
+            }
+            return -2;
+        }
+        return -1;
+    }
+
+    public static int removeBotAdminByID(String serverID, String userID, JDA jda) {
+        ServerConfig sc = getServerConfigByID(serverID);
+        if (sc != null) {
+            if (VerifyIDTool.verifyUserInServer(serverID, userID, jda) == 1) {
+                if (sc.removeBotAdminID(userID)) {
+                    return 1;   // Bot admin successfully removed
+                }
+                return -3;  // User is not existing bot admin
+            }
+            return -2;  // User not found in server
+        }
+        return -1;  // Server not found
+    }
+
+    private static ServerConfig getServerConfigByID(String serverID) {
         for (ServerConfig sc : serverConfigs) {
-            if (sc.getServerID().equals(id)) {
-                return sc.getBotAdminIDs();
+            if (sc.getServerID().equals(serverID)) {
+                return sc;
             }
         }
         return null;
@@ -267,19 +300,10 @@ class ServerConfig {
     }
 
     public ArrayList<String> getBotAdminIDs() { return botAdminIDs; }
-    public void addBotAdminID(String botAdminID) {
-        this.botAdminIDs.add(botAdminID);
+    public boolean addBotAdminID(String botAdminID) {
+        return this.botAdminIDs.add(botAdminID);
     }
-    public void removeBotAdminID(String botAdminID) {
-        this.botAdminIDs.remove(botAdminID);
+    public boolean removeBotAdminID(String botAdminID) {
+        return this.botAdminIDs.remove(botAdminID);
     }
-
-//    public String toString()    {
-//        ArrayList<String> botAdminNames = new ArrayList<>();
-//        return "Server Name: " + serverName + "\n" +
-//                "Server ID: " + serverID + "\n" +
-//                "Bot Prefix: " + botPrefix + "\n" +
-//                "Bot Channels: " + botChannels + "\n" +
-//                "Bot Admins: " + botAdminIDs + "\n";
-//    }
 }

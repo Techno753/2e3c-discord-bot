@@ -12,7 +12,7 @@ public class DiscordBot {
 
         // Initialise bot and connection to discord
         JDABuilder builder = new JDABuilder(AccountType.BOT);
-        builder.setToken("NjY0NjIxOTUxMDM3NDcyNzk4.XhgqOA.5iuwrnXimoW5iHmQAch726g_hYs");
+        builder.setToken("NjY0NjIxOTUxMDM3NDcyNzk4.XhjmLQ.mNQF-PVCWK4lHt4Ed0XoxJjHkVc");
 
         builder.addEventListeners(new StartEvent(),
                 new GenericEvent(),
@@ -25,6 +25,6 @@ public class DiscordBot {
 
         JDA jda = builder.build();
 
-
+        ConfigTool.getStringAll(jda);
     }
 }

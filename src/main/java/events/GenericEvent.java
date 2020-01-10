@@ -24,7 +24,7 @@ public class GenericEvent extends ListenerAdapter {
         System.out.println("Channel: " + gmre.getChannel().getName() + "(" + gmre.getChannel().getId() + ")");
         System.out.println("Time: " + gmre.getMessage().getTimeCreated());
         System.out.println("User: " + gmre.getAuthor().getName() + "(" + gmre.getAuthor().getId() + ")");
-        System.out.println("Message: " + msgIn);
+        System.out.println("Message: " + msgIn + "\n");
 
         if (msgIn.length() > 1 && VerifyMsgTool.hasCorrectPrefix(gmre)) {
             cmdString = msgIn.toLowerCase().substring(1);
