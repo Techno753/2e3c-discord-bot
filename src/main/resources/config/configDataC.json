@@ -1,0 +1,16 @@
+[
+  {
+    "serverName": "name",
+    "serverID": "id",
+    "botPrefix": "^",
+    "botChannels": ["chan1", "chan2"],
+    "botAdminIDs": ["admin1", "admin2"]
+  },
+  {
+    "serverName": "name",
+    "serverID": "id",
+    "botPrefix": "^",
+    "botChannels": ["chan1", "chan2"],
+    "botAdminIDs": ["admin1", "admin2"]
+  }
+]
