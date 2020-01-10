@@ -1,5 +1,8 @@
 package tools;
 
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,7 +14,7 @@ public final class ConfigTool {
     private static ArrayList<ServerConfig> serverConfigs = new ArrayList<>();
 
     // Constructor reads the file upon creation
-    public ConfigTool() throws Exception {
+    public static void readConfig() {
 
         try {
             Object obj = new JSONParser().parse(new FileReader("src/main/resources/config/configData.json"));
@@ -60,15 +63,17 @@ public final class ConfigTool {
                 serverJSON.put("botPrefix", sc.getBotPrefix());
 
                 JSONArray botChannels = new JSONArray();
-                for (String ch : sc.getBotchannels()) {
-                    botChannels.add(ch);
-                }
+//                for (String ch : sc.getBotchannels()) {
+//                    botChannels.add(ch);
+//                }
+                botChannels.addAll(sc.getBotchannels());
                 serverJSON.put("botChannels", botChannels);
 
                 JSONArray botAdminIDs = new JSONArray();
-                for (String ad : sc.getBotAdminIDs()) {
-                    botAdminIDs.add(ad);
-                }
+//                for (String ad : sc.getBotAdminIDs()) {
+//                    botAdminIDs.add(ad);
+//                }
+                botAdminIDs.addAll(sc.getBotAdminIDs());
                 serverJSON.put("botAdminIDs", botAdminIDs);
 
                 serverList.add(serverJSON);
@@ -84,14 +89,14 @@ public final class ConfigTool {
     }
 
     // Adds a new server to ServerConfig
-    public static void addServer(String serverName, String serverID, String ownerID) throws Exception{
+    public static void addServer(String serverName, String serverID, String ownerID){
         serverConfigs.add(new ServerConfig(serverName, serverID, ownerID));
         System.out.println("Added new server");
         writeJson();
     }
 
     // removes a server from ServerConfig if exists
-    public static void removeServer(String serverID) throws Exception{
+    public static void removeServer(String serverID) {
         int removeIndex = -1;
         for (int i = 0; i < serverConfigs.size(); i++) {
             if (serverConfigs.get(i).getServerID().equals(serverID)) {
@@ -122,10 +127,10 @@ public final class ConfigTool {
     }
 
     // Gets info for all servers as a string
-    public static String getStringAll() {
+    public static String getStringAll(Event e) {
         String out = "";
         for (ServerConfig sc : serverConfigs) {
-            out += sc.toString();
+            out += getStringByID(sc.getServerID(), e);
             out += "\n";
         }
 
@@ -133,11 +138,51 @@ public final class ConfigTool {
     }
 
     // Gets info for single server as a string
-    public static String getStringByID(String id) {
+    public static String getStringByID(String id, Event e) {
         String out = "";
         for (ServerConfig sc : serverConfigs) {
             if (sc.getServerID().equals(id)) {
-                out = sc.toString();
+                ArrayList<Object> botChannelNames = new ArrayList<>();
+                for (String bcID : sc.getBotchannels()) {
+                    try {
+                        botChannelNames.add(e.getJDA().getTextChannelById(bcID).getName());
+                    } catch (NullPointerException npe) {
+                        System.out.println("ERROR: Invalid Bot Channel ID.");
+                    }
+                }
+
+                ArrayList<Object> botAdminNames = new ArrayList<>();
+                for (String baID : sc.getBotAdminIDs()) {
+                    try {
+                        botAdminNames.add(e.getJDA().getUserById(baID).getName());
+                    } catch (NullPointerException npe) {
+                        System.out.println("ERROR: Invalid Bot Admin ID.");
+                    }
+                }
+
+                out += "Server Name: " + sc.getServerName() + "\n" +
+                        "Server ID: " + sc.getServerID() + "\n" +
+                        "Bot Prefix: " + sc.getBotPrefix() + "\n" +
+                        "Bot Channels: " + botChannelNames + "\n" +
+                        "Bot Channel IDs: " + sc.getBotchannels() + "\n" +
+                        "Bot Admins: " + botAdminNames + "\n" +
+                        "Bot Admin IDs: " + sc.getBotAdminIDs() + "\n";
+            }
+        }
+
+        return out;
+    }
+
+    // Returns info for single server as arraylist
+    public static ArrayList<Object> getDataByID(String id) {
+        ArrayList<Object> out = new ArrayList<>();
+        for (ServerConfig sc : serverConfigs) {
+            if (sc.getServerID().equals(id)) {
+                out.add(sc.getServerName());
+                out.add(sc.getServerID());
+                out.add(sc.getBotPrefix());
+                out.add(sc.getBotchannels());
+                out.add(sc.getBotAdminIDs());
             }
         }
 
@@ -158,8 +203,8 @@ class ServerConfig {
         this.serverName = serverName;
         this.serverID = serverID;
         this.botPrefix = "^";
-        this.botChannels = new ArrayList<String>();
-        this.botAdminIDs = new ArrayList<String>();
+        this.botChannels = new ArrayList<>();
+        this.botAdminIDs = new ArrayList<>();
         botAdminIDs.add(ownerID);
     }
 
@@ -210,6 +255,7 @@ class ServerConfig {
     }
 
     public String toString()    {
+        ArrayList<String> botAdminNames = new ArrayList<>();
         return "Server Name: " + serverName + "\n" +
                 "Server ID: " + serverID + "\n" +
                 "Bot Prefix: " + botPrefix + "\n" +

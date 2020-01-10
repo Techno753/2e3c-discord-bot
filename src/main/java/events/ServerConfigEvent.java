@@ -1,6 +1,7 @@
 package events;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -8,16 +9,14 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import tools.ConfigTool;
 import tools.VerifyMsgTool;
 
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-
-/*
- * Event Listener for Server related events
- */
+// Event Listener for Server related events
 public class ServerConfigEvent extends ListenerAdapter {
-    EmbedBuilder eb = new EmbedBuilder();
 
     // Adds server to server configs
+    @Override
     public void onGuildJoin(GuildJoinEvent gje) {
         try {
             System.out.println("Attempting to add server");
@@ -31,6 +30,7 @@ public class ServerConfigEvent extends ListenerAdapter {
     }
 
     // Removes server from server configs
+    @Override
     public void onGuildLeave(GuildLeaveEvent gle) {
         try {
             System.out.println("Attempting to Leave server");
@@ -47,15 +47,14 @@ public class ServerConfigEvent extends ListenerAdapter {
         // Get message as raw String
         String msgIn = gmre.getMessage().getContentRaw();
         String msgOut = "";
-        Boolean msgSet = false;
+        boolean msgSet = false;
 
         String cmdString = msgIn.toLowerCase().substring(1);
-        System.out.println("input: " + cmdString);
 
         // Gets information on all servers
         if (Pattern.matches("^servers$", cmdString)) {
             if (VerifyMsgTool.isBotCreator(gmre) && VerifyMsgTool.hasCorrectPrefix(gmre)) {
-                msgOut = ConfigTool.getStringAll();
+                msgOut = ConfigTool.getStringAll(gmre);
                 msgSet = true;
             }
 
@@ -63,7 +62,8 @@ public class ServerConfigEvent extends ListenerAdapter {
         } else if (Pattern.matches("^thisserver$", cmdString)) {
             if ((VerifyMsgTool.isBotAdmin(gmre) || VerifyMsgTool.isBotCreator(gmre))
                     || VerifyMsgTool.hasCorrectPrefix(gmre)) {
-                msgOut = ConfigTool.getStringByID(gmre.getGuild().getId());
+
+                msgOut = ConfigTool.getStringByID(gmre.getGuild().getId(), gmre);
                 msgSet = true;
             }
 
@@ -80,13 +80,12 @@ public class ServerConfigEvent extends ListenerAdapter {
             }
         }
 
-        System.out.println(msgOut);
-
+        // Queue message to send if there is one to send
         if (msgSet) {
             gmre.getChannel().sendMessage(msgOut).queue();
         }
 
-        msgSet = false;
-        eb.clear();
+        // Clear message flag
+//        msgSet = false;
     }
 }
