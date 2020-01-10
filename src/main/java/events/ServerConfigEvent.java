@@ -47,9 +47,12 @@ public class ServerConfigEvent extends ListenerAdapter {
         // Get message as raw String
         String msgIn = gmre.getMessage().getContentRaw();
         String msgOut = "";
+        String cmdString = "";
         boolean msgSet = false;
 
-        String cmdString = msgIn.toLowerCase().substring(1);
+        if (msgIn.length() > 1) {
+            cmdString = msgIn.toLowerCase().substring(1);
+        }
 
         // Gets information on all servers
         if (Pattern.matches("^servers$", cmdString)) {

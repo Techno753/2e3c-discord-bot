@@ -18,9 +18,8 @@ public class ServerInfoEvent extends ListenerAdapter {
     public void onGuildMessageReceived(GuildMessageReceivedEvent gmre) {
         // Get message as raw String
         String msgIn = gmre.getMessage().getContentRaw();
-        System.out.println(msgIn);
         String msgOut = "";
-        Boolean msgSet = false;
+        boolean msgSet = false;
 
         switch (msgIn.toLowerCase()) {
             case "!cinfo":
@@ -55,7 +54,7 @@ public class ServerInfoEvent extends ListenerAdapter {
         if (msgSet) {
             gmre.getChannel().sendMessage(eb.build()).queue();
         }
-        msgSet = false;
+//        msgSet = false;
         eb.clear();
     }
 }

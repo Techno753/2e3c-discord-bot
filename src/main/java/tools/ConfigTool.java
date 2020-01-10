@@ -15,39 +15,43 @@ public final class ConfigTool {
 
     // Constructor reads the file upon creation
     public static void readConfig() {
+        boolean fileExists = false;
+        Object obj = null;
 
         try {
-            Object obj = new JSONParser().parse(new FileReader("src/main/resources/config/configData.json"));
-            JSONArray ja = (JSONArray) obj;
-
-            // Iterate through JSON and parse every info of each server
-            for (Object serv : ja) {
-                JSONObject server = (JSONObject) serv;
-
-                ArrayList<String> botChannels = new ArrayList<>();
-                for (Object ch : (JSONArray) server.get("botChannels")) {
-                    botChannels.add((String) ch);
-                }
-                ArrayList<String> botAdminIDs = new ArrayList<>();
-                for (Object ad : (JSONArray) server.get("botAdminIDs")) {
-                    botAdminIDs.add((String) ad);
-                }
-
-                serverConfigs.add(new ServerConfig((String) server.get("serverName"),
-                                                (String) server.get("serverID"),
-                                                (String) server.get("botPrefix"),
-                                                botChannels,
-                                                botAdminIDs));
-
-            }
-            System.out.println("Parsed config JSON.");
+            obj = new JSONParser().parse(new FileReader("src/main/resources/config/configData.json"));
+            fileExists = true;
         } catch (Exception e) {
-            System.out.println("Error parsing config file");
+            System.out.println("Config file not found.");
         }
 
+        if (fileExists) {
+            try {
+                JSONArray ja = (JSONArray) obj;
 
-        for (ServerConfig sc : serverConfigs) {
-            System.out.println(sc);
+                // Iterate through JSON and parse every info of each server
+                for (Object serv : ja) {
+                    JSONObject server = (JSONObject) serv;
+
+                    ArrayList<String> botChannels = new ArrayList<>();
+                    for (Object ch : (JSONArray) server.get("botChannels")) {
+                        botChannels.add((String) ch);
+                    }
+                    ArrayList<String> botAdminIDs = new ArrayList<>();
+                    for (Object ad : (JSONArray) server.get("botAdminIDs")) {
+                        botAdminIDs.add((String) ad);
+                    }
+
+                    serverConfigs.add(new ServerConfig((String) server.get("serverName"),
+                            (String) server.get("serverID"),
+                            (String) server.get("botPrefix"),
+                            botChannels,
+                            botAdminIDs));
+                }
+                System.out.println("Parsed config JSON and found " + serverConfigs.size() + " server(s).");
+            } catch (Exception e) {
+                System.out.println("Error parsing config file.");
+            }
         }
     }
 
@@ -142,7 +146,9 @@ public final class ConfigTool {
         String out = "";
         for (ServerConfig sc : serverConfigs) {
             if (sc.getServerID().equals(id)) {
+
                 ArrayList<Object> botChannelNames = new ArrayList<>();
+
                 for (String bcID : sc.getBotchannels()) {
                     try {
                         botChannelNames.add(e.getJDA().getTextChannelById(bcID).getName());

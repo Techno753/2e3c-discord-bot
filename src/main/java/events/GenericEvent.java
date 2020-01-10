@@ -16,11 +16,20 @@ public class GenericEvent extends ListenerAdapter {
 
         // Get message as raw String
         String msgIn = gmre.getMessage().getContentRaw();
+        String cmdString = "";
         String msgOut = "";
-        Boolean msgSet = false;
+        boolean msgSet = false;
 
-        String cmdString = msgIn.toLowerCase().substring(1);
-        System.out.println("input: " + cmdString);
+        System.out.println("== New Message ==");
+        System.out.println("Server: " + gmre.getGuild().getName() + "(" + gmre.getGuild().getId() + ")");
+        System.out.println("Channel: " + gmre.getChannel().getName() + "(" + gmre.getChannel().getId() + ")");
+        System.out.println("Time: " + gmre.getMessage().getTimeCreated());
+        System.out.println("User: " + gmre.getAuthor().getName() + "(" + gmre.getAuthor().getId() + ")");
+        System.out.println("Message: " + msgIn);
+
+        if (msgIn.length() > 1) {
+            cmdString = msgIn.toLowerCase().substring(1);
+        }
 
         // Replies Pong!
         if (Pattern.matches("^(?i)ping$", cmdString)) {

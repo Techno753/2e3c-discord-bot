@@ -5,15 +5,12 @@ import tools.ConfigTool;
 
 public class DiscordBot {
     public static void main(String[] args) throws Exception{
+        // Read Config file if exists
+        ConfigTool.readConfig();
 
         // Initialise connection to Discord
-        JDA jda = new JDABuilder("NjY0NjIxOTUxMDM3NDcyNzk4.Xhf69g.uFUSgDvBR7Dl_Jv6JJgamtQSC3M").build();
-
-        // DEBUG
-        ConfigTool.readConfig();
-        System.out.println("Writing to config file");
-        ConfigTool.writeJson();
-
+        JDA jda = new JDABuilder("NjY0NjIxOTUxMDM3NDcyNzk4.XhgV5A.FR6Kp2-kVqyji6MIlHhVZCmHNtM").build();
+        
         // User Events
         jda.addEventListener(new GenericEvent());
         jda.addEventListener(new RNGEvent());
