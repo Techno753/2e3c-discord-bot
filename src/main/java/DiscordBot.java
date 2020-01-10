@@ -9,8 +9,8 @@ public class DiscordBot {
         ConfigTool.readConfig();
 
         // Initialise connection to Discord
-        JDA jda = new JDABuilder("NjY0NjIxOTUxMDM3NDcyNzk4.XhgV5A.FR6Kp2-kVqyji6MIlHhVZCmHNtM").build();
-        
+        JDA jda = new JDABuilder("NjY0NjIxOTUxMDM3NDcyNzk4.XhgkIQ.Jn2stxKYpdeEuuP6nFQ_OrpKdlw").build();
+
         // User Events
         jda.addEventListener(new GenericEvent());
         jda.addEventListener(new RNGEvent());

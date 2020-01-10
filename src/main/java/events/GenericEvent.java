@@ -26,16 +26,14 @@ public class GenericEvent extends ListenerAdapter {
         System.out.println("User: " + gmre.getAuthor().getName() + "(" + gmre.getAuthor().getId() + ")");
         System.out.println("Message: " + msgIn);
 
-        if (msgIn.length() > 1) {
+        if (msgIn.length() > 1 && VerifyMsgTool.hasCorrectPrefix(gmre)) {
             cmdString = msgIn.toLowerCase().substring(1);
         }
 
         // Replies Pong!
         if (Pattern.matches("^(?i)ping$", cmdString)) {
-            if (VerifyMsgTool.hasCorrectPrefix(gmre)) {
-                msgOut = "Pong!";
-                msgSet = true;
-            }
+            msgOut = "Pong!";
+            msgSet = true;
 
         // Replies World!
         } else if (Pattern.matches("^(?i)hello$", cmdString)) {
@@ -44,8 +42,10 @@ public class GenericEvent extends ListenerAdapter {
 
         // Pings Apple
         } else if (Pattern.matches("^(?i)pa$", cmdString)) {
-            msgOut = "<@177473493816836098>";
-            msgSet = true;
+            if (VerifyMsgTool.hasCorrectPrefix(gmre) && VerifyMsgTool.isBotAdmin(gmre)) {
+                msgOut = "<@177473493816836098>";
+                msgSet = true;
+            }
         }
 
         if (msgSet) {
