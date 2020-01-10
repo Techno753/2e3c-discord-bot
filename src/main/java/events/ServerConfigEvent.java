@@ -10,6 +10,7 @@ import tools.ConfigTool;
 import tools.VerifyMsgTool;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // Event Listener for Server related events
@@ -51,18 +52,18 @@ public class ServerConfigEvent extends ListenerAdapter {
         boolean msgSet = false;
 
         if (msgIn.length() > 1) {
-            cmdString = msgIn.toLowerCase().substring(1);
+            cmdString = msgIn.substring(1);
         }
 
         // Gets information on all servers
-        if (Pattern.matches("^servers$", cmdString)) {
+        if (Pattern.matches("^(?i)servers$", cmdString)) {
             if (VerifyMsgTool.isBotCreator(gmre) && VerifyMsgTool.hasCorrectPrefix(gmre)) {
                 msgOut = ConfigTool.getStringAll(gmre);
                 msgSet = true;
             }
 
         // Gets information on the server messaged on
-        } else if (Pattern.matches("^thisserver$", cmdString)) {
+        } else if (Pattern.matches("^(?i)thisserver$", cmdString)) {
             if ((VerifyMsgTool.isBotAdmin(gmre) || VerifyMsgTool.isBotCreator(gmre))
                     || VerifyMsgTool.hasCorrectPrefix(gmre)) {
 
@@ -71,15 +72,35 @@ public class ServerConfigEvent extends ListenerAdapter {
             }
 
         // Changes the command prefix for a server
-        } else if (Pattern.matches("^prefix .$", cmdString)) {
+        } else if (Pattern.matches("^(?i)prefix .$", cmdString)) {
             if ((VerifyMsgTool.isBotAdmin(gmre) && VerifyMsgTool.hasCorrectPrefix(gmre))
                     || VerifyMsgTool.isBotCreator(gmre)) {
                 String prefix = msgIn.split(" ")[1];
                 ConfigTool.setServerPrefixByID(gmre.getGuild().getId(),
                         msgIn.split(" ")[1]);
-                ConfigTool.writeJson();
+                ConfigTool.writeConfig();
                 msgOut = "Server prefix set to: " + prefix;
                 msgSet = true;
+            }
+
+        // Adds a bot admin for the server
+        } else if (Pattern.matches("^(?i)addba <@!?\\d+>$", cmdString)) {
+            Pattern addbaPat = Pattern.compile("^(?i)addba <@!?(\\d+)>$");
+            Matcher m = addbaPat.matcher(cmdString);
+
+            if (m.find()) {
+                String userID = m.group(1);
+                System.out.println(userID);
+            }
+
+        // Removes a bot admin for the server
+        } else if (Pattern.matches("^(?i)remba <@!?\\d+>$", cmdString)) {
+            Pattern addbaPat = Pattern.compile("^(?i)remba <@!?(\\d+)>$");
+            Matcher m = addbaPat.matcher(cmdString);
+
+            if (m.find()) {
+                String userID = m.group(1);
+                System.out.println(userID);
             }
         }
 
@@ -87,8 +108,5 @@ public class ServerConfigEvent extends ListenerAdapter {
         if (msgSet) {
             gmre.getChannel().sendMessage(msgOut).queue();
         }
-
-        // Clear message flag
-//        msgSet = false;
     }
 }

@@ -1,14 +1,17 @@
 package tools;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import javax.annotation.Nonnull;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public final class ConfigTool {
     private static ArrayList<ServerConfig> serverConfigs = new ArrayList<>();
@@ -56,7 +59,7 @@ public final class ConfigTool {
     }
 
     // Writes ServerConfig data to json
-    public static void writeJson() {
+    public static void writeConfig() {
         try {
             JSONArray serverList = new JSONArray();
 
@@ -96,7 +99,7 @@ public final class ConfigTool {
     public static void addServer(String serverName, String serverID, String ownerID){
         serverConfigs.add(new ServerConfig(serverName, serverID, ownerID));
         System.out.println("Added new server");
-        writeJson();
+        writeConfig();
     }
 
     // removes a server from ServerConfig if exists
@@ -112,30 +115,12 @@ public final class ConfigTool {
         }
     }
 
-    // Returns a ServerConfig by server ID
-    public static ServerConfig getServerConfigByID(String id) {
-        ServerConfig out = null;
-
-        for (ServerConfig sc : serverConfigs) {
-            if (sc.getServerID().equals(id)) {
-                out = sc;
-            }
-        }
-
-        return out;
-    }
-
-    // Sets a Server's Prefix by server ID
-    public static void setServerPrefixByID(String id, String prefix) {
-        getServerConfigByID(id).setBotPrefix(prefix);
-    }
 
     // Gets info for all servers as a string
     public static String getStringAll(Event e) {
         String out = "";
         for (ServerConfig sc : serverConfigs) {
-            out += getStringByID(sc.getServerID(), e);
-            out += "\n";
+            out += getStringByID(sc.getServerID(), e) + "\n";
         }
 
         return out;
@@ -166,7 +151,7 @@ public final class ConfigTool {
                     }
                 }
 
-                out += "Server Name: " + sc.getServerName() + "\n" +
+                out = "Server Name: " + sc.getServerName() + "\n" +
                         "Server ID: " + sc.getServerID() + "\n" +
                         "Bot Prefix: " + sc.getBotPrefix() + "\n" +
                         "Bot Channels: " + botChannelNames + "\n" +
@@ -179,20 +164,49 @@ public final class ConfigTool {
         return out;
     }
 
-    // Returns info for single server as arraylist
-    public static ArrayList<Object> getDataByID(String id) {
-        ArrayList<Object> out = new ArrayList<>();
+    public static String getServerNameByID(String id) {
         for (ServerConfig sc : serverConfigs) {
             if (sc.getServerID().equals(id)) {
-                out.add(sc.getServerName());
-                out.add(sc.getServerID());
-                out.add(sc.getBotPrefix());
-                out.add(sc.getBotchannels());
-                out.add(sc.getBotAdminIDs());
+                return sc.getServerName();
             }
         }
+        return null;
+    }
 
-        return out;
+    public static String getBotPrefixByID(String id) {
+        for (ServerConfig sc : serverConfigs) {
+            if (sc.getServerID().equals(id)) {
+                return sc.getBotPrefix();
+            }
+        }
+        return null;
+    }
+
+    public static void setServerPrefixByID(String id, String prefix) {
+        for (ServerConfig sc : serverConfigs) {
+            if (sc.getServerID().equals(id)) {
+                sc.setBotPrefix(prefix);
+                break;
+            }
+        }
+    }
+
+    public static ArrayList<String> getBotChannelsByID(String id) {
+        for (ServerConfig sc : serverConfigs) {
+            if (sc.getServerID().equals(id)) {
+                return sc.getBotchannels();
+            }
+        }
+        return null;
+    }
+
+    public static ArrayList<String> getBotAdminsByID(String id) {
+        for (ServerConfig sc : serverConfigs) {
+            if (sc.getServerID().equals(id)) {
+                return sc.getBotAdminIDs();
+            }
+        }
+        return null;
     }
 }
 
@@ -260,12 +274,12 @@ class ServerConfig {
         this.botAdminIDs.remove(botAdminID);
     }
 
-    public String toString()    {
-        ArrayList<String> botAdminNames = new ArrayList<>();
-        return "Server Name: " + serverName + "\n" +
-                "Server ID: " + serverID + "\n" +
-                "Bot Prefix: " + botPrefix + "\n" +
-                "Bot Channels: " + botChannels + "\n" +
-                "Bot Admins: " + botAdminIDs + "\n";
-    }
+//    public String toString()    {
+//        ArrayList<String> botAdminNames = new ArrayList<>();
+//        return "Server Name: " + serverName + "\n" +
+//                "Server ID: " + serverID + "\n" +
+//                "Bot Prefix: " + botPrefix + "\n" +
+//                "Bot Channels: " + botChannels + "\n" +
+//                "Bot Admins: " + botAdminIDs + "\n";
+//    }
 }
