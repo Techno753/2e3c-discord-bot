@@ -10,13 +10,16 @@ import tools.ConfigTool;
 import java.util.regex.Pattern;
 
 
-/*
- * Event Listener for Server related events
+/**
+ * Displays server and channel information
  */
 public class ServerInfoEvent extends ListenerAdapter {
     EmbedBuilder eb = new EmbedBuilder();
 
-    // Displays server and channel info
+    /**
+     * Displays server and channel information
+     * @param gmre Message event
+     */
     public void onGuildMessageReceived(GuildMessageReceivedEvent gmre) {
         // Get message as raw String
         String msgIn = gmre.getMessage().getContentRaw();
@@ -28,6 +31,7 @@ public class ServerInfoEvent extends ListenerAdapter {
             cmdString = msgIn.toLowerCase().substring(1);
         }
 
+        // Gets channel information
         if (Pattern.matches("^(?i)cinfo$", cmdString)) {
             try {
                 eb.setTitle("Channel Information");
@@ -41,6 +45,8 @@ public class ServerInfoEvent extends ListenerAdapter {
             } catch (Exception e) {
                 System.out.println("Failed to obtain channel information.");
             }
+
+        // Gets server information
         } else if (Pattern.matches("^(?i)sinfo$", cmdString)) {
             try {
                 eb.setTitle("Server Information");
@@ -54,10 +60,10 @@ public class ServerInfoEvent extends ListenerAdapter {
             }
         }
 
+        // Displays message
         if (msgSet) {
             gmre.getChannel().sendMessage(eb.build()).queue();
         }
-//      msgSet = false;
         eb.clear();
     }
 }

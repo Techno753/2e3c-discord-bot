@@ -11,10 +11,15 @@ import tools.VerifyMsgTool;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// Event Listener for Server related events
+/**
+ * Event listener for server config related events
+ */
 public class ServerConfigEvent extends ListenerAdapter {
 
-    // Adds server to server configs upon joining
+    /**
+     * Adds a new server config upon joining a server
+     * @param gje Server join event
+     */
     @Override
     public void onGuildJoin(GuildJoinEvent gje) {
         try {
@@ -33,7 +38,10 @@ public class ServerConfigEvent extends ListenerAdapter {
         }
     }
 
-    // Removes server from server configs upon leaving
+    /**
+     * Removes server config upon leaving a server
+     * @param gle Server leave event
+     */
     @Override
     public void onGuildLeave(GuildLeaveEvent gle) {
         try {
@@ -50,7 +58,10 @@ public class ServerConfigEvent extends ListenerAdapter {
         }
     }
 
-    // Displays server and channel info
+    /**
+     * Displays server config information
+     * @param gmre Message received event
+     */
     public void onGuildMessageReceived(GuildMessageReceivedEvent gmre) {
 
         // Initialize variables to use within scope
@@ -171,7 +182,12 @@ public class ServerConfigEvent extends ListenerAdapter {
         }
     }
 
-    // Extracts either the user id or channel id from a ping
+    /**
+     * Extracts the pinged user or channel id from a command
+     * @param regex The regex to match to extract the id
+     * @param cmdString The command message
+     * @return A user or channel ID
+     */
     private String getID(String regex, String cmdString) {
         String userID = null;
         Pattern pat = Pattern.compile(regex);

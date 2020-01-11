@@ -7,8 +7,10 @@ import net.dv8tion.jda.api.entities.Member;
 
 import java.nio.channels.Channel;
 
-// Verifies various IDs
-public final class VerifyIDTool {
+/**
+ * Performs various checks on Message/Channel/Server IDs
+ */
+public final class VerifyInTool {
 
     /**
      * Verifies whether the bot is in a server with the given server ID
@@ -43,6 +45,14 @@ public final class VerifyIDTool {
         return -1;  // User doesn't exist in server
     }
 
+    /**
+     * Verifies whether a channel exists in a server
+     * @param serverID Server to check in
+     * @param channelID Channel to check for
+     * @param jda JDA to access server information
+     * @return 1 - Channel in server
+     *          -1 - Channel not in server
+     */
     public static int verifyChannelInServer(String serverID, String channelID, JDA jda) {
         for (GuildChannel gc : jda.getGuildById(serverID).getChannels()) {
             if (gc.getId().equals(channelID)) {

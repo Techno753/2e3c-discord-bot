@@ -6,6 +6,9 @@ import tools.VerifyMsgTool;
 
 import java.util.regex.Pattern;
 
+/**
+ * Used to test things.
+ */
 public class TestEvent extends ListenerAdapter {
     public void onGuildMessageReceived(GuildMessageReceivedEvent gmre) {
         // Get message as raw String

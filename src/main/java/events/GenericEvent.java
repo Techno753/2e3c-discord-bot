@@ -19,6 +19,7 @@ public class GenericEvent extends ListenerAdapter {
         String msgOut = "";
         boolean msgSet = false;
 
+        // Prints message to terminal
         System.out.println("== New Message ==");
         System.out.println("Server: " + gmre.getGuild().getName() + " (" + gmre.getGuild().getId() + ")");
         System.out.println("Channel: " + gmre.getChannel().getName() + " (" + gmre.getChannel().getId() + ")");
@@ -46,7 +47,7 @@ public class GenericEvent extends ListenerAdapter {
             msgOut = "World!";
             msgSet = true;
 
-        // Pings Apple
+        // Pings Apple, kek.
         } else if (Pattern.matches("^(?i)pa$", cmdString) &&
                 (isBotCreator(gmre) ||
                         isBotAdmin(gmre))) {
@@ -56,6 +57,7 @@ public class GenericEvent extends ListenerAdapter {
             }
         }
 
+        // Displays message
         if (msgSet) {
             gmre.getChannel().sendMessage(msgOut).queue();
         }

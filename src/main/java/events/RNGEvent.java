@@ -17,7 +17,10 @@ public class RNGEvent extends ListenerAdapter {
 
     Random rdm = new Random();
 
-    // Message Listener for RNG Events
+    /**
+     * Displays RNG messages such as rolling dice and flipping a coin
+     * @param gmre Message received event
+     */
     public void onGuildMessageReceived(GuildMessageReceivedEvent gmre) {
 
         // Get message as raw String
@@ -30,7 +33,7 @@ public class RNGEvent extends ListenerAdapter {
             cmdString = msgIn.toLowerCase().substring(1);
         }
 
-        // Replies heads or tails
+        // Flips a coin
         if (Pattern.matches("^(?i)coin$", cmdString)) {
             if (rdm.nextInt(2) > 0) {
                 msgOut = "Heads";
@@ -39,7 +42,7 @@ public class RNGEvent extends ListenerAdapter {
             }
             msgSet = true;
 
-        // Replies a number between 1 and 6 inclusive
+        // Rolls a dice
         } else if (Pattern.matches("^(?i)dice$", cmdString)) {
             msgOut = Integer.toString(rdm.nextInt(6) + 1);
             msgSet = true;
@@ -69,7 +72,8 @@ public class RNGEvent extends ListenerAdapter {
             }
             double mean = sum / times;
 
-            msgOut = "Rolls: " + rolls + "\n" +
+            msgOut = "__Rolled a d" + sides + " " + times + " times__\n" +
+                    "Rolls: " + rolls + "\n" +
                     "Average: " + mean + "\n" +
                     "Min: " + Collections.min(rolls) + "\n" +
                     "Max: " + Collections.max(rolls);
