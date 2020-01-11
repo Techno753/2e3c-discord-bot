@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import tools.ConfigTool;
+import tools.VerifyIDTool;
 import tools.VerifyMsgTool;
 
 import java.util.ArrayList;
@@ -16,36 +17,46 @@ import java.util.regex.Pattern;
 // Event Listener for Server related events
 public class ServerConfigEvent extends ListenerAdapter {
 
-    // Adds server to server configs
+    // Adds server to server configs upon joining
     @Override
     public void onGuildJoin(GuildJoinEvent gje) {
         try {
-            System.out.println("Attempting to add server");
-            System.out.println(gje.getGuild().getName());
-            System.out.println(gje.getGuild().getId());
-            ConfigTool.addServer(gje.getGuild().getName(), gje.getGuild().getId(), gje.getGuild().getOwnerId());
-            System.out.println("Successfully joined new server");
+            System.out.println("Attempting to add server...");
+            System.out.println(gje.getGuild().getName() + " (" + gje.getGuild().getId() + ")");
+            int result = ConfigTool.addServer(gje.getGuild().getId(), gje.getJDA());
+            if (result == 1) {
+                System.out.println("Successfully joined new server.");
+            } else if (result == -2) {
+                System.out.println("Error adding server. Server data already exists in config.");
+            } else if (result == -1) {
+                System.out.println("Error adding server inner.");
+            }
         } catch (Exception e) {
-            System.out.println("Error adding server");
+            System.out.println("Error adding server outer.");
         }
     }
 
-    // Removes server from server configs
+    // Removes server from server configs upon leaving
     @Override
     public void onGuildLeave(GuildLeaveEvent gle) {
         try {
-            System.out.println("Attempting to Leave server");
-            System.out.println(gle.getGuild().getId());
-            ConfigTool.removeServer(gle.getGuild().getId());
-            System.out.println("Successfully removed server");
+            System.out.println("Attempting to Leave server...");
+            System.out.println(gle.getGuild().getName() + " (" + gle.getGuild().getId() + ")");
+            int result = ConfigTool.removeServer(gle.getGuild().getId());
+            if (result == 1) {
+                System.out.println("Successfully removed server.");
+            } else if (result == -1) {
+                System.out.println("Error removing server. Server info was not found in config.");
+            }
         } catch (Exception e) {
-            System.out.println("Error removing server");
+            System.out.println("Error removing server.");
         }
     }
 
     // Displays server and channel info
     public void onGuildMessageReceived(GuildMessageReceivedEvent gmre) {
-        // Get message as raw String
+
+        // Initialize variables to use within scope
         String msgIn = gmre.getMessage().getContentRaw();
         String msgOut = "";
         String cmdString = "";
@@ -63,13 +74,17 @@ public class ServerConfigEvent extends ListenerAdapter {
             }
 
         // Gets information on the server messaged on
-        } else if (Pattern.matches("^(?i)thisserver$", cmdString)) {
+        } else if (Pattern.matches("^(?i)server$", cmdString)) {
             if ((VerifyMsgTool.isBotAdmin(gmre) || VerifyMsgTool.isBotCreator(gmre))
                     || VerifyMsgTool.hasCorrectPrefix(gmre)) {
 
                 msgOut = ConfigTool.getStringByID(gmre.getGuild().getId(), gmre.getJDA());
                 msgSet = true;
             }
+
+        // Updates server configs if they mismatch
+        } else if (Pattern.matches("^(?i)updateservers$", cmdString)) {
+            ConfigTool.updateServers(gmre.getJDA());
 
         // Changes the command prefix for a server
         } else if (Pattern.matches("^(?i)prefix .$", cmdString)) {
@@ -85,66 +100,90 @@ public class ServerConfigEvent extends ListenerAdapter {
 
         // Adds a bot admin for the server
         } else if (Pattern.matches("^(?i)addba <@!?\\d+>$", cmdString)) {
-            Pattern addbaPat = Pattern.compile("^(?i)addba <@!?(\\d+)>$");
-            Matcher m = addbaPat.matcher(cmdString);
+            String userID = getID("^(?i)addba <@!?(\\d+)>$", cmdString);
 
-            // Get user ID from command
-            if (m.find()) {
-                String userID = m.group(1);
-
-                // Check that user exists on the server
-                int result = ConfigTool.addBotAdminByID(gmre.getGuild().getId(), userID, gmre.getJDA());
-                if (result == 1) {
-                    msgOut = "Successfully added bot admin: " + gmre.getGuild().getMemberById(userID).getUser().getName();
-                    ConfigTool.writeConfig();
-                } else if (result == -3) {
-                    msgOut = "Error adding bot admin.";
-                } else if (result == -2) {
-                    msgOut = "Error adding bot admin. User not found on this server.";
-                } else if (result == -1) {
-                    msgOut = "Error adding bot admin. Server not found.";
-                }
-                msgSet = true;
+            // Check that user exists on the server
+            int result = ConfigTool.addBotAdminByID(gmre.getGuild().getId(), userID, gmre.getJDA());
+            if (result == 1) {
+                msgOut = "Successfully added bot admin: " + gmre.getGuild().getMemberById(userID).getUser().getName();
+                ConfigTool.writeConfig();
+            } else if (result == -4) {
+                msgOut = "Error adding bot admin.";
+            } else if (result == -3) {
+                msgOut = "Error adding bot admin. User is already a bot admin.";
+            } else if (result == -2) {
+                msgOut = "Error adding bot admin. User not found on this server.";
+            } else if (result == -1) {
+                msgOut = "Error adding bot admin. Server not found.";
             }
+            msgSet = true;
 
         // Removes a bot admin for the server
         } else if (Pattern.matches("^(?i)remba <@!?\\d+>$", cmdString)) {
-            Pattern rembaPat = Pattern.compile("^(?i)remba <@!?(\\d+)>$");
-            Matcher m = rembaPat.matcher(cmdString);
+            String userID = getID("^(?i)remba <@!?(\\d+)>$", cmdString);
 
-            // Get user ID from command
-            if (m.find()) {
-                String userID = m.group(1);
-
-                int result = ConfigTool.removeBotAdminByID(gmre.getGuild().getId(), userID, gmre.getJDA());
-                if (result == 1) {
-                    msgOut = "Successfully removed bot admin: " + gmre.getGuild().getMemberById(userID).getUser().getName();
-                    ConfigTool.writeConfig();
-                } else if (result == -3) {
-                    msgOut = "Error removing bot admin. User is not an existing bot admin.";
-                } else if (result == -2) {
-                    msgOut = "Error removing bot admin. User was not found on this server.";
-                } else if (result == -1) {
-                    msgOut = "Error removing bot admin. Server not found.";
-                }
-                msgSet = true;
+            int result = ConfigTool.removeBotAdminByID(gmre.getGuild().getId(), userID, gmre.getJDA());
+            if (result == 1) {
+                msgOut = "Successfully removed bot admin: " + gmre.getGuild().getMemberById(userID).getUser().getName();
+                ConfigTool.writeConfig();
+            } else if (result == -2) {
+                msgOut = "Error removing bot admin. User is not an existing bot admin.";
+            } else if (result == -1) {
+                msgOut = "Error removing bot admin. Server was not found.";
             }
+            msgSet = true;
 
+        // Adds a bot channel for this server
+        } else if (Pattern.matches("^(?i)addbc <#\\d+>$", cmdString)) {
+            String channelID = getID("^(?i)addbc <#(\\d+)>$", cmdString);
 
-        // Removes a bot admin for the server
-        } else if (Pattern.matches("^(?i)remba <@!?\\d+>$", cmdString)) {
-            Pattern rembaPat = Pattern.compile("^(?i)remba <@!?(\\d+)>$");
-            Matcher m = rembaPat.matcher(cmdString);
-
-            if (m.find()) {
-                String userID = m.group(1);
-                System.out.println(userID);
+            int result = ConfigTool.addBotChannelByID(gmre.getGuild().getId(), channelID, gmre.getJDA());
+            if (result == 1) {
+                msgOut = "Successfully added bot channel: " + gmre.getGuild().getTextChannelById(channelID).getName();
+                ConfigTool.writeConfig();
+            } else if (result == -4) {
+                msgOut = "Error adding bot channel.";
+            } else if (result == -3) {
+                msgOut = "Error adding bot channel. Channel already bot channel.";
+            } else if (result == -2) {
+                msgOut = "Error adding bot channel. Channel doesn't exist in server.";
+            } else if (result == -1) {
+                msgOut = "Error adding bot channel. Server was not found.";
             }
+            msgSet = true;
+
+        // Removes a bot channel for this server
+        } else if (Pattern.matches("^(?i)rembc <#\\d+>$", cmdString)) {
+            String channelID = getID("^(?i)rembc <#(\\d+)>$", cmdString);
+
+            int result = ConfigTool.removeBotChannelByID(gmre.getGuild().getId(), channelID, gmre.getJDA());
+            if (result == 1) {
+                msgOut = "Successfully removed bot channel: " + gmre.getGuild().getTextChannelById(channelID).getName();
+                ConfigTool.writeConfig();
+            } else if (result == -2) {
+                msgOut = "Error removing bot channel. Channel is not a bot channel.";
+            } else if (result == -1) {
+                msgOut = "Error removing bot channel. Server was not found.";
+            }
+            msgSet = true;
         }
 
         // Queue message to send if there is one to send
         if (msgSet) {
             gmre.getChannel().sendMessage(msgOut).queue();
         }
+    }
+
+    // Extracts either the user id or channel id from a ping
+    private String getID(String regex, String cmdString) {
+        String userID = null;
+        Pattern pat = Pattern.compile(regex);
+        Matcher m = pat.matcher(cmdString);
+
+        // Get user ID from command
+        if (m.find()) {
+            userID = m.group(1);
+        }
+        return userID;
     }
 }

@@ -2,7 +2,10 @@ package tools;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
+
+import java.nio.channels.Channel;
 
 // Verifies various IDs
 public final class VerifyIDTool {
@@ -34,9 +37,18 @@ public final class VerifyIDTool {
     public static int verifyUserInServer(String serverID, String userID, JDA jda) {
         for (Member mem : jda.getGuildById(serverID).getMembers()) {
             if (mem.getId().equals(userID)) {
-                return 1;
+                return 1;   // User in server
             }
         }
-        return -1;
+        return -1;  // User doesn't exist in server
+    }
+
+    public static int verifyChannelInServer(String serverID, String channelID, JDA jda) {
+        for (GuildChannel gc : jda.getGuildById(serverID).getChannels()) {
+            if (gc.getId().equals(channelID)) {
+                return 1;   // Channel in server
+            }
+        }
+        return -1;  // Channel doesn't exist in server
     }
 }

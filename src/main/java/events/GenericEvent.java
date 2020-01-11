@@ -20,10 +20,10 @@ public class GenericEvent extends ListenerAdapter {
         boolean msgSet = false;
 
         System.out.println("== New Message ==");
-        System.out.println("Server: " + gmre.getGuild().getName() + "(" + gmre.getGuild().getId() + ")");
-        System.out.println("Channel: " + gmre.getChannel().getName() + "(" + gmre.getChannel().getId() + ")");
+        System.out.println("Server: " + gmre.getGuild().getName() + " (" + gmre.getGuild().getId() + ")");
+        System.out.println("Channel: " + gmre.getChannel().getName() + " (" + gmre.getChannel().getId() + ")");
         System.out.println("Time: " + gmre.getMessage().getTimeCreated());
-        System.out.println("User: " + gmre.getAuthor().getName() + "(" + gmre.getAuthor().getId() + ")");
+        System.out.println("User: " + gmre.getAuthor().getName() + " (" + gmre.getAuthor().getId() + ")");
         System.out.println("Message: " + msgIn + "\n");
 
         if (msgIn.length() > 1 && VerifyMsgTool.hasCorrectPrefix(gmre)) {
@@ -42,7 +42,7 @@ public class GenericEvent extends ListenerAdapter {
 
         // Pings Apple
         } else if (Pattern.matches("^(?i)pa$", cmdString)) {
-            if (VerifyMsgTool.hasCorrectPrefix(gmre) && VerifyMsgTool.isBotAdmin(gmre)) {
+            if (VerifyMsgTool.isBotAdmin(gmre)) {
                 msgOut = "<@177473493816836098>";
                 msgSet = true;
             }

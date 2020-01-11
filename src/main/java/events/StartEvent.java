@@ -8,6 +8,7 @@ public class StartEvent extends ListenerAdapter {
 
     public void onReady(ReadyEvent re) {
         ConfigTool.readConfig();
+        ConfigTool.updateServers(re.getJDA());
         System.out.println("Config information:\n");
         System.out.print(ConfigTool.getStringAll(re.getJDA()));
         System.out.println("Ready!");

@@ -1,12 +1,11 @@
 package tools;
 
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.entities.Guild;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import javax.annotation.Nonnull;
 import java.io.*;
 import java.util.ArrayList;
 
@@ -14,7 +13,7 @@ public final class ConfigTool {
     private static ArrayList<ServerConfig> serverConfigs = new ArrayList<>();
 
     // Constructor reads the file upon creation
-    public static void readConfig() {
+    public static int readConfig() {
         boolean fileExists = false;
         Object obj = null;
 
@@ -23,6 +22,7 @@ public final class ConfigTool {
             fileExists = true;
         } catch (Exception e) {
             System.out.println("Config file not found.");
+            return -3;  // Config file not found
         }
 
         if (fileExists) {
@@ -48,17 +48,22 @@ public final class ConfigTool {
                             botChannels,
                             botAdminIDs));
                 }
-                System.out.println("Parsed config JSON and found " + serverConfigs.size() + " server(s).");
+                System.out.println("Parsed config JSON and found " + serverConfigs.size() + " server(s).\n");
+                return 1;   // Config successfully parsed
             } catch (Exception e) {
                 System.out.println("Error parsing config file.");
+                return -2; // Error writing to config file
             }
         }
+        return -1; // Should never return -1.
     }
 
     // Writes ServerConfig data to json
-    public static void writeConfig() {
+    public static int writeConfig() {
+        boolean jsonFormed = false;
+        JSONArray serverList = new JSONArray();
+
         try {
-            JSONArray serverList = new JSONArray();
 
             for (ServerConfig sc : serverConfigs) {
                 JSONObject serverJSON = new JSONObject();
@@ -67,49 +72,122 @@ public final class ConfigTool {
                 serverJSON.put("botPrefix", sc.getBotPrefix());
 
                 JSONArray botChannels = new JSONArray();
-//                for (String ch : sc.getBotchannels()) {
-//                    botChannels.add(ch);
-//                }
                 botChannels.addAll(sc.getBotchannels());
                 serverJSON.put("botChannels", botChannels);
 
                 JSONArray botAdminIDs = new JSONArray();
-//                for (String ad : sc.getBotAdminIDs()) {
-//                    botAdminIDs.add(ad);
-//                }
                 botAdminIDs.addAll(sc.getBotAdminIDs());
                 serverJSON.put("botAdminIDs", botAdminIDs);
 
                 serverList.add(serverJSON);
+            }
+            jsonFormed = true;
+        } catch (Exception e) {
+            System.out.println("Error forming JSON from serverConfigs.");
+            return -2;  // Error forming JSON from serverConfigs
+        }
 
+        try {
                 FileWriter file = new FileWriter("src/main/resources/config/configData.json");
-
                 file.write(serverList.toJSONString());
                 file.flush();
-            }
+
         } catch (Exception e) {
             System.out.println("Error writing to config file.");
+            return -3;  // Error writing to config file.
         }
+
+        return -1; // This should never return -1.
     }
 
+
     // Adds a new server to ServerConfig
-    public static void addServer(String serverName, String serverID, String ownerID){
-        serverConfigs.add(new ServerConfig(serverName, serverID, ownerID));
-        System.out.println("Added new server");
-        writeConfig();
+    public static int addServer(String serverID, JDA jda){
+        if (ConfigTool.getServerConfigByID(serverID) == null) {
+            if (serverConfigs.add(new ServerConfig(jda.getGuildById(serverID).getName(), serverID, jda.getGuildById(serverID).getOwnerId()))) {
+                writeConfig();
+                return 1;   // Successfully added new server to config
+            }
+            return -1;  // Error adding server data
+        }
+        return -2;  // Server data already exists in config
     }
 
     // removes a server from ServerConfig if exists
-    public static void removeServer(String serverID) {
-        int removeIndex = -1;
-        for (int i = 0; i < serverConfigs.size(); i++) {
-            if (serverConfigs.get(i).getServerID().equals(serverID)) {
-                removeIndex = i;
+    public static int removeServer(String serverID) {
+        if (serverConfigs.remove(getServerConfigByID(serverID))) {
+            writeConfig();
+            return 1;
+        }
+        return -1;
+    }
+
+    // Updates serverConfigs if any servers were joined or left while bot was offline
+    public static int updateServers(JDA jda) {
+        // Remove configs for any servers left while bot offline
+        int out = -1;   // No changes
+        ArrayList<String> serversLeft = new ArrayList<>();
+        ArrayList<String> serversJoined = new ArrayList<>();
+
+        ArrayList<String> serverIDsToRemove = new ArrayList<>();
+        for (ServerConfig sc : serverConfigs) {
+            boolean isInServer = false;
+            for (Guild g : jda.getGuilds()) {
+                if (g.getId().equals(sc.getServerID())) {
+                    isInServer = true;
+                }
+            }
+            // If config exists for server the bot is no longer in then remove it
+            if (!isInServer) {
+                serverIDsToRemove.add(sc.getServerID());
             }
         }
-        if (removeIndex > -1) {
-            serverConfigs.remove(removeIndex);
+        for (String serverID : serverIDsToRemove) {
+            serversLeft.add(ConfigTool.getServerNameByID(serverID));
+            removeServer(serverID);
         }
+
+        // Print removed servers
+        if (serversLeft.size() > 0) {
+            System.out.println("Removed configs for the following servers as the bot left while offline:");
+            for (String serverName : serversLeft) {
+                System.out.println(serverName);
+            }
+            System.out.println();
+            out = 1;    // Servers removed
+        }
+
+        // Add configs for any servers joined while bot offline
+        for (Guild g : jda.getGuilds()) {
+            boolean hasConfig = false;
+            for (ServerConfig sc : serverConfigs) {
+                if (g.getId().equals(sc.getServerID())) {
+                    hasConfig = true;
+                }
+            }
+
+            // If in server but config doesn't exist then create one
+            if (!hasConfig) {
+                addServer(g.getId(), jda);
+                serversJoined.add(g.getName());
+            }
+        }
+
+        // Print added servers
+        if (serversJoined.size() > 0) {
+            System.out.println("Added the following server configs as the bot joined while offline:");
+            for (String serverName : serversJoined) {
+                System.out.println(serverName);
+            }
+            System.out.println();
+
+            if (out == 1) {
+                out = 3;    // Servers removed and joined
+            } else {
+                out = 2;    // Servers joined
+            }
+        }
+        return out; // -1 no changes, 1 servers removed, 2 servers joined, 3 servers joined and removed
     }
 
 
@@ -161,6 +239,7 @@ public final class ConfigTool {
         return out;
     }
 
+
     public static String getServerNameByID(String id) {
         ServerConfig sc = getServerConfigByID(id);
         if (sc != null) {
@@ -209,29 +288,59 @@ public final class ConfigTool {
         ServerConfig sc = getServerConfigByID(serverID);
         if (sc != null) {
             if (VerifyIDTool.verifyUserInServer(serverID, userID, jda) == 1) {
-                if (sc.addBotAdminID(userID)) {
-                    return 1;
+                if (!sc.getBotAdminIDs().contains(userID)) {
+                    if (sc.addBotAdminID(userID)) {
+                        return 1;
+                    }
+                    return -4;  // Error adding bot channel
                 }
-                return -3;
+                return -3;  // Bot admin already exists
             }
-            return -2;
+            return -2;  // User not in server
         }
-        return -1;
+        return -1;  // Server doesn't exist
     }
 
     public static int removeBotAdminByID(String serverID, String userID, JDA jda) {
         ServerConfig sc = getServerConfigByID(serverID);
         if (sc != null) {
-            if (VerifyIDTool.verifyUserInServer(serverID, userID, jda) == 1) {
-                if (sc.removeBotAdminID(userID)) {
-                    return 1;   // Bot admin successfully removed
-                }
-                return -3;  // User is not existing bot admin
+            if (sc.removeBotAdminID(userID)) {
+                return 1;   // Bot admin successfully removed
             }
-            return -2;  // User not found in server
+            return -2;  // User is not existing bot admin
         }
         return -1;  // Server not found
     }
+
+
+    public static int addBotChannelByID(String serverID, String channelID, JDA jda) {
+        ServerConfig sc = getServerConfigByID(serverID);
+        if (sc != null) {
+            if (VerifyIDTool.verifyChannelInServer(serverID, channelID, jda) == 1) {
+                if (!sc.getBotchannels().contains(channelID)) {
+                    if (sc.addBotChannel(channelID)) {
+                        return 1;
+                    }
+                    return -4;  // Error adding bot channel
+                }
+                return -3; // Channel already bot channel
+            }
+            return -2; // Channel doesn't exist in server
+        }
+        return -1; // Server doesn't exist
+    }
+
+    public static int removeBotChannelByID(String serverID, String channelID, JDA jda) {
+        ServerConfig sc = getServerConfigByID(serverID);
+        if (sc != null) {
+            if (sc.removeBotChannel(channelID)) {
+                return 1;   // Bot channel successfully removed
+            }
+            return -2;  // Channel is not a bot channel
+        }
+        return -1;  // Server not found
+    }
+
 
     private static ServerConfig getServerConfigByID(String serverID) {
         for (ServerConfig sc : serverConfigs) {
@@ -248,7 +357,7 @@ class ServerConfig {
     private String serverName;
     private String serverID;
     private String botPrefix;
-    private ArrayList<String> botChannels;
+    private ArrayList<String> botChannelIDs;
     private ArrayList<String> botAdminIDs;
 
     // For adding a new server config
@@ -256,18 +365,18 @@ class ServerConfig {
         this.serverName = serverName;
         this.serverID = serverID;
         this.botPrefix = "^";
-        this.botChannels = new ArrayList<>();
+        this.botChannelIDs = new ArrayList<>();
         this.botAdminIDs = new ArrayList<>();
         botAdminIDs.add(ownerID);
     }
 
     // For parsing an existing server from json
     public ServerConfig(String serverName, String serverID, String botPrefix,
-                        ArrayList<String> botChannels, ArrayList<String> botAdminIDs) {
+                        ArrayList<String> botChannelIDs, ArrayList<String> botAdminIDs) {
         this.serverName = serverName;
         this.serverID = serverID;
         this.botPrefix = botPrefix;
-        this.botChannels = botChannels;
+        this.botChannelIDs = botChannelIDs;
         this.botAdminIDs = botAdminIDs;
     }
 
@@ -290,13 +399,13 @@ class ServerConfig {
     }
 
     public ArrayList<String> getBotchannels() {
-        return botChannels;
+        return botChannelIDs;
     }
-    public void addBotChannel(String channelID) {
-        this.botChannels.add(channelID);
+    public boolean addBotChannel(String channelID) {
+        return this.botChannelIDs.add(channelID);
     }
-    public void removeBotChannel(String channelID) {
-        this.botChannels.remove(channelID);
+    public boolean removeBotChannel(String channelID) {
+        return this.botChannelIDs.remove(channelID);
     }
 
     public ArrayList<String> getBotAdminIDs() { return botAdminIDs; }

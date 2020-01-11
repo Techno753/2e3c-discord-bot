@@ -14,13 +14,6 @@ public class TestEvent extends ListenerAdapter {
         String msgOut = "";
         boolean msgSet = false;
 
-        System.out.println("== New Message ==");
-        System.out.println("Server: " + gmre.getGuild().getName() + "(" + gmre.getGuild().getId() + ")");
-        System.out.println("Channel: " + gmre.getChannel().getName() + "(" + gmre.getChannel().getId() + ")");
-        System.out.println("Time: " + gmre.getMessage().getTimeCreated());
-        System.out.println("User: " + gmre.getAuthor().getName() + "(" + gmre.getAuthor().getId() + ")");
-        System.out.println("Message: " + msgIn + "\n");
-
         if (msgIn.length() > 1 && VerifyMsgTool.hasCorrectPrefix(gmre)) {
             cmdString = msgIn.toLowerCase().substring(1);
         }
