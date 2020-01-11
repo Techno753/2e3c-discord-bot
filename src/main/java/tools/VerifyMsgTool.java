@@ -3,7 +3,6 @@ package tools;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public final class VerifyMsgTool {
     // Compare msg channel ID to server's bot channel IDs

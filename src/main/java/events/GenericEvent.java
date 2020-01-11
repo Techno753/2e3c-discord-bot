@@ -2,7 +2,7 @@ package events;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import tools.VerifyMsgTool;
+import static tools.VerifyMsgTool.*;
 
 import java.util.regex.Pattern;
 
@@ -24,25 +24,33 @@ public class GenericEvent extends ListenerAdapter {
         System.out.println("Channel: " + gmre.getChannel().getName() + " (" + gmre.getChannel().getId() + ")");
         System.out.println("Time: " + gmre.getMessage().getTimeCreated());
         System.out.println("User: " + gmre.getAuthor().getName() + " (" + gmre.getAuthor().getId() + ")");
-        System.out.println("Message: " + msgIn + "\n");
+        System.out.println("-- Message Below -- " + "\n" + msgIn + "\n");
 
-        if (msgIn.length() > 1 && VerifyMsgTool.hasCorrectPrefix(gmre)) {
+        if (msgIn.length() > 1 && hasCorrectPrefix(gmre)) {
             cmdString = msgIn.toLowerCase().substring(1);
         }
 
         // Replies Pong!
-        if (Pattern.matches("^(?i)ping$", cmdString)) {
+        if (Pattern.matches("^(?i)ping$", cmdString) &&
+                        (isBotCreator(gmre) ||
+                        isBotAdmin(gmre) ||
+                        isCmdChannel(gmre))) {
             msgOut = "Pong!";
             msgSet = true;
 
         // Replies World!
-        } else if (Pattern.matches("^(?i)hello$", cmdString)) {
+        } else if (Pattern.matches("^(?i)hello$", cmdString) &&
+                        (isBotCreator(gmre) ||
+                        isBotAdmin(gmre) ||
+                        isCmdChannel(gmre))) {
             msgOut = "World!";
             msgSet = true;
 
         // Pings Apple
-        } else if (Pattern.matches("^(?i)pa$", cmdString)) {
-            if (VerifyMsgTool.isBotAdmin(gmre)) {
+        } else if (Pattern.matches("^(?i)pa$", cmdString) &&
+                (isBotCreator(gmre) ||
+                        isBotAdmin(gmre))) {
+            if (isBotAdmin(gmre)) {
                 msgOut = "<@177473493816836098>";
                 msgSet = true;
             }

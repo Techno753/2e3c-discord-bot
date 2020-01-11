@@ -207,32 +207,28 @@ public final class ConfigTool {
         for (ServerConfig sc : serverConfigs) {
             if (sc.getServerID().equals(id)) {
 
-                ArrayList<Object> botChannelNames = new ArrayList<>();
-
+                ArrayList<Object> bc = new ArrayList<>();
                 for (String bcID : sc.getBotchannels()) {
                     try {
-                        botChannelNames.add(jda.getTextChannelById(bcID).getName());
+                        bc.add(jda.getTextChannelById(bcID).getName() + " (" + bcID +")");
                     } catch (NullPointerException npe) {
                         System.out.println("ERROR: Invalid Bot Channel ID.");
                     }
                 }
 
-                ArrayList<Object> botAdminNames = new ArrayList<>();
+                ArrayList<Object> ba = new ArrayList<>();
                 for (String baID : sc.getBotAdminIDs()) {
                     try {
-                        botAdminNames.add(jda.getUserById(baID).getName());
+                        ba.add(jda.getUserById(baID).getName() + " (" + baID + ")");
                     } catch (NullPointerException npe) {
                         System.out.println("ERROR: Invalid Bot Admin ID.");
                     }
                 }
 
-                out = "Server Name: " + sc.getServerName() + "\n" +
-                        "Server ID: " + sc.getServerID() + "\n" +
+                out = "Server Name: " + sc.getServerName() + " (" + sc.getServerID() + ")" + "\n" +
                         "Bot Prefix: " + sc.getBotPrefix() + "\n" +
-                        "Bot Channels: " + botChannelNames + "\n" +
-                        "Bot Channel IDs: " + sc.getBotchannels() + "\n" +
-                        "Bot Admins: " + botAdminNames + "\n" +
-                        "Bot Admin IDs: " + sc.getBotAdminIDs() + "\n";
+                        "Bot Channels: " + bc + "\n" +
+                        "Bot Admins: " + ba + "\n" + "\n";
             }
         }
 
