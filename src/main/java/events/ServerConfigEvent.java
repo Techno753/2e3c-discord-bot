@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import tools.ConfigTool;
+import tools.RegexTool;
 import tools.VerifyMsgTool;
 
 import java.util.regex.Matcher;
@@ -108,7 +109,7 @@ public class ServerConfigEvent extends ListenerAdapter {
 
         // Adds a bot admin for the server
         } else if (Pattern.matches("^(?i)addba <@!?\\d+>$", cmdString)) {
-            String userID = getID("^(?i)addba <@!?(\\d+)>$", cmdString);
+            String userID = RegexTool.getGroups("^(?i)addba <@!?(\\d+)>$", cmdString).get(0);
 
             // Check that user exists on the server
             int result = ConfigTool.addBotAdminByID(gmre.getGuild().getId(), userID, gmre.getJDA());
@@ -128,7 +129,7 @@ public class ServerConfigEvent extends ListenerAdapter {
 
         // Removes a bot admin for the server
         } else if (Pattern.matches("^(?i)remba <@!?\\d+>$", cmdString)) {
-            String userID = getID("^(?i)remba <@!?(\\d+)>$", cmdString);
+            String userID = RegexTool.getGroups("^(?i)remba <@!?(\\d+)>$", cmdString).get(0);
 
             int result = ConfigTool.removeBotAdminByID(gmre.getGuild().getId(), userID, gmre.getJDA());
             if (result == 1) {
@@ -143,7 +144,7 @@ public class ServerConfigEvent extends ListenerAdapter {
 
         // Adds a bot channel for this server
         } else if (Pattern.matches("^(?i)addbc <#\\d+>$", cmdString)) {
-            String channelID = getID("^(?i)addbc <#(\\d+)>$", cmdString);
+            String channelID = RegexTool.getGroups("^(?i)addbc <#(\\d+)>$", cmdString).get(0);
 
             int result = ConfigTool.addBotChannelByID(gmre.getGuild().getId(), channelID, gmre.getJDA());
             if (result == 1) {
@@ -162,7 +163,8 @@ public class ServerConfigEvent extends ListenerAdapter {
 
         // Removes a bot channel for this server
         } else if (Pattern.matches("^(?i)rembc <#\\d+>$", cmdString)) {
-            String channelID = getID("^(?i)rembc <#(\\d+)>$", cmdString);
+            String channelID = RegexTool.getGroups("^(?i)rembc <#(\\d+)>$", cmdString).get(0);
+
 
             int result = ConfigTool.removeBotChannelByID(gmre.getGuild().getId(), channelID, gmre.getJDA());
             if (result == 1) {
@@ -180,23 +182,5 @@ public class ServerConfigEvent extends ListenerAdapter {
         if (msgSet) {
             gmre.getChannel().sendMessage(msgOut).queue();
         }
-    }
-
-    /**
-     * Extracts the pinged user or channel id from a command
-     * @param regex The regex to match to extract the id
-     * @param cmdString The command message
-     * @return A user or channel ID
-     */
-    private String getID(String regex, String cmdString) {
-        String userID = null;
-        Pattern pat = Pattern.compile(regex);
-        Matcher m = pat.matcher(cmdString);
-
-        // Get user ID from command
-        if (m.find()) {
-            userID = m.group(1);
-        }
-        return userID;
     }
 }

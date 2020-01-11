@@ -22,7 +22,6 @@ public final class ConfigTool {
      *          -2 - Error: Config JSON found but failed to parse
      */
     public static int readConfig() {
-        boolean fileExists;
         Object obj;
 
         try {
