@@ -112,7 +112,7 @@ public class ServerConfigEvent extends ListenerAdapter {
             String userID = RegexTool.getGroups("^(?i)addba <@!?(\\d+)>$", cmdString).get(0);
 
             // Check that user exists on the server
-            int result = ConfigTool.addBotAdminByID(gmre.getGuild().getId(), userID, gmre.getJDA());
+            int result = ConfigTool.addBotAdminByID(userID, gmre);
             if (result == 1) {
                 msgOut = "Successfully added bot admin: " + gmre.getGuild().getMemberById(userID).getUser().getName();
                 ConfigTool.writeConfig();
@@ -146,7 +146,7 @@ public class ServerConfigEvent extends ListenerAdapter {
         } else if (Pattern.matches("^(?i)addbc <#\\d+>$", cmdString)) {
             String channelID = RegexTool.getGroups("^(?i)addbc <#(\\d+)>$", cmdString).get(0);
 
-            int result = ConfigTool.addBotChannelByID(gmre.getGuild().getId(), channelID, gmre.getJDA());
+            int result = ConfigTool.addBotChannelByID(channelID, gmre);
             if (result == 1) {
                 msgOut = "Successfully added bot channel: " + gmre.getGuild().getTextChannelById(channelID).getName();
                 ConfigTool.writeConfig();

@@ -2,6 +2,7 @@ package tools;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -354,18 +355,18 @@ public final class ConfigTool {
 
     /**
      * Adds a bot admin to a server
-     * @param serverID Server to add bot admin to
      * @param userID User to add as bot admin
-     * @param jda JDA to access server information
+     * @param gmre Message Event to get JDA and server id
      * @return 1 - Successfully added bot admin
      *          -1 - Server doesn't exist
      *          -2 - User not in server
      *          -3 - Bot admin already exists
      */
-    public static int addBotAdminByID(String serverID, String userID, JDA jda) {
+    public static int addBotAdminByID(String userID, GuildMessageReceivedEvent gmre) {
+        String serverID = gmre.getGuild().getId();
         ServerConfig sc = getServerConfigByID(serverID);
         if (sc != null) {
-            if (VerifyInTool.verifyUserInServer(serverID, userID, jda) == 1) {
+            if (VerifyInTool.verifyUserInServer(serverID, userID, gmre.getJDA()) == 1) {
                 if (!sc.getBotAdminIDs().contains(userID)) {
                     sc.addBotAdminID(userID);
                 }
@@ -398,18 +399,18 @@ public final class ConfigTool {
 
     /**
      * Defines a channel in a server as a bot channel
-     * @param serverID Server to define new bot channel
      * @param channelID Channel to define as bot channel
-     * @param jda JDA to access server information
+     * @param gmre Message Event to get JDA and server id
      * @return 1 - Successfully added bot channel
      *          -1 - Server doesn't exist
      *          -2 - Channel doesn't exist in server
      *          -3 - Channel is already a bot channel
      */
-    public static int addBotChannelByID(String serverID, String channelID, JDA jda) {
+    public static int addBotChannelByID(String channelID, GuildMessageReceivedEvent gmre) {
+        String serverID = gmre.getGuild().getId();
         ServerConfig sc = getServerConfigByID(serverID);
         if (sc != null) {
-            if (VerifyInTool.verifyChannelInServer(serverID, channelID, jda) == 1) {
+            if (VerifyInTool.verifyChannelInServer(serverID, channelID, gmre.getJDA()) == 1) {
                 if (!sc.getBotchannels().contains(channelID)) {
                     return 1;
                 }

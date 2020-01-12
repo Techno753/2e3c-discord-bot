@@ -12,7 +12,7 @@ public class DiscordBot {
 
         // Initialise bot and connection to discord
         JDABuilder builder = new JDABuilder(AccountType.BOT);
-        builder.setToken("NjY0NjIxOTUxMDM3NDcyNzk4.XhlcRQ.NQ1cSBIy5WgSjz3UjaCKEQj3VWo");
+        builder.setToken("NjY0NjIxOTUxMDM3NDcyNzk4.XhqysQ.GKdTBXRjUfGreZxMxISeuTGIp6U");
 
         builder.addEventListeners(new StartEvent(),
                 new GenericEvent(),
