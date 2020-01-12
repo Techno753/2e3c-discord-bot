@@ -3,6 +3,7 @@ import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import tools.ConfigTool;
+import tools.InputTool;
 
 public class DiscordBot {
     public static void main(String[] args) throws Exception{
@@ -12,7 +13,8 @@ public class DiscordBot {
 
         // Initialise bot and connection to discord
         JDABuilder builder = new JDABuilder(AccountType.BOT);
-        builder.setToken("NjY0NjIxOTUxMDM3NDcyNzk4.XhreEQ.-T3iZMZ_bYySKhflT_xmDz4yZDQ");
+        String token = InputTool.inputFromTerminal();
+        builder.setToken(token);
 
         builder.addEventListeners(new StartEvent(),
                 new GenericEvent(),

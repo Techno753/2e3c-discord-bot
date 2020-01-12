@@ -19,7 +19,7 @@ public final class FileTool {
      * @return  1 - Image successfully downloaded
      *          -2 - Error downloading image
      */
-    public static int downloadImageByURL(String src, String dest) {
+    public static int downloadFileByURL(String src, String dest) {
         try {
             // https://cdn.discordapp.com/attachments/99218035843301376/665864870331416597/586280686298857502.png
             URL url = new URL(src);
@@ -43,7 +43,7 @@ public final class FileTool {
             }
             return 1;
         } catch (Exception e) {
-            System.out.println("Error downloading image.");
+            System.out.println("Error downloading file.");
             System.out.println(e);
             return -1;
         }
@@ -56,5 +56,13 @@ public final class FileTool {
             System.out.println("File not found.");
         }
         return null;
+    }
+
+    public static int deleteFile(String src) {
+        File file = getLocalImage(src);
+        if (file.delete()) {
+            return 1;   // File successfully deleted
+        }
+        return -1;  // Failed to delete file
     }
 }

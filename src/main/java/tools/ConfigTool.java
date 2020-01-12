@@ -149,9 +149,9 @@ public final class ConfigTool {
     public static int removeServer(String serverID) {
         if (serverConfigs.remove(getServerConfigByID(serverID))) {
             writeConfig();
-            return 1;
+            return 1;   // Server successfully removed
         }
-        return -1;
+        return -1;  // Server not found
     }
 
     /**

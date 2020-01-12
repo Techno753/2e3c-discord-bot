@@ -1,6 +1,7 @@
 package tools;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -88,9 +89,16 @@ public final class TagTool {
         return -1; // This should never return -1.
     }
 
-    public static int addTag(String tagTag, String tagReply, String tagType, String tagCreator) {
-        if (TagTool.getTagByTag(tagTag) == null) {
-            if (tagArray.add(new Tag(tagTag, tagReply, tagType, tagCreator))) {
+    public static int addTextTag(GuildMessageReceivedEvent gmre, String cmdString) {
+        // Get terms from command msg
+        ArrayList<String> terms = RegexTool.getGroups("^(?is)att (\\w+)[\\s\\n](.+)$", cmdString);
+        String tag = terms.get(0);
+        String reply = terms.get(1);
+        String type = "text";
+        String userID = gmre.getAuthor().getId();
+
+        if (TagTool.getTagByTag(tag) == null) {
+            if (tagArray.add(new Tag(tag, reply, type, userID))) {
                 writeTags();
                 return 1;   // Successfully added new tag
             }
@@ -99,13 +107,49 @@ public final class TagTool {
         return -2;  // Tag already exists
     }
 
+    public static int addImageTag(GuildMessageReceivedEvent gmre, String cmdString) {
+        // check message has image
+        if (gmre.getMessage().getAttachments().size() != 1 || !gmre.getMessage().getAttachments().get(0).isImage()) {
+            return -1;  // Message doesn't contain image or contains multiple images.
+        }
+
+        // Get terms from message
+        ArrayList<String> terms = RegexTool.getGroups("^(?is)ait (\\w+)$", cmdString);
+        String tag = terms.get(0);
+        String ext = gmre.getMessage().getAttachments().get(0).getFileExtension();
+        String reply = "src/main/resources/tagData/" + tag + "." + ext;
+        String userID = gmre.getAuthor().getId();
+        String type = "image";
+
+        // check if tag exists
+        if (TagTool.getTagByTag(tag) == null) {
+            if (tagArray.add(new Tag(tag, reply, type, userID))) {
+                int result = ImageTool.downloadImageFromMessage(gmre, tag);
+                if (result == 1) {
+                    writeTags();
+                    return 1;   // Successfully added new tag
+                } else if (result == -1) {
+                    System.out.println("Error downloading image");
+                    return -4;
+                }
+            }
+            return -2;  // Error adding tag
+        }
+        return -3;  // Tag already exists
+    }
+
     public static int removeTag(String tagTag) {
+//        if (FileTool.deleteFile(TagTool.getReplyByTag(tagTag)) == 1) {
+        // If image tag remove image tag
+
+        // Remove tag json information
         if (tagArray.remove(getTagByTag(tagTag))) {
             writeTags();
-            return 1;
+            return 1;   // Tag successfully removed
         }
-        return -1;
+        return -2;  // Tag not found
     }
+
 
     // TODO
     public static int updateTag(String tagTag) {
