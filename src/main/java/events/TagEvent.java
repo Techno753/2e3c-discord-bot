@@ -2,6 +2,7 @@ package events;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import tools.ImageTool;
 import tools.RegexTool;
 import tools.TagTool;
 import tools.VerifyMsgTool;
@@ -36,7 +37,7 @@ public class TagEvent extends ListenerAdapter {
             // Check if tag exists and ask user to update
 
             // add tag
-            int result = TagTool.addTag(tag, reply, type, userID, gmre.getJDA());
+            int result = TagTool.addTag(tag, reply, type, userID);
 
             if (result == 1) {
                 msgOut = "Created new text tag:\n" +
@@ -65,12 +66,55 @@ public class TagEvent extends ListenerAdapter {
             }
             msgSet = true;
 
+        // Adds an image tag
+        } else if (Pattern.matches("^(?is)ait (\\w+)$", cmdString)) {
+                ArrayList<String> terms = RegexTool.getGroups("^(?is)ait (\\w+)$", cmdString);
+                String tag = terms.get(0);
+                String ext = gmre.getMessage().getAttachments().get(0).getFileExtension();
+                String reply = "src/main/resources/tagData/" + tag + "." + ext;
+                String userID = gmre.getAuthor().getId();
+                String type;
+
+                int resultA = ImageTool.downloadImageFromMessage(gmre, tag);
+                if (resultA == 1) {
+                    type = "img/" + ext;
+                    int resultB = TagTool.addTag(tag, reply, type, userID);
+                    if (resultB == 1) {
+                        msgOut = "Tag saved successfully";
+                    } else if (resultB == -2) {
+                        msgOut = "Tag already exists";
+                    } else if (resultB == -1) {
+                        msgOut = "Error: Failed to save tag.";
+                    }
+                } else if (resultA == -3) {
+                    msgOut = "Error: Failed to retrieve image.";
+                } else if (resultA == -2) {
+                    msgOut = "Error: Message contains multiple files.";
+                } else if (resultA == -1) {
+                    msgOut = "Error: Message doesn't contain an image.";
+                }
+                msgSet = true;
+
         // Invokes a tag
         } else if (Pattern.matches("^(?i)t (\\w+)$", cmdString)) {
+            // Get tag
             String tag = RegexTool.getGroups("^(?i)t (\\w+)$", cmdString).get(0);
 
-            msgOut = TagTool.getReplyByTag(tag);;
-            msgSet = true;
+            // Get tag data
+            String reply = TagTool.getReplyByTag(tag);
+            String type = TagTool.getTypeByTag(tag);
+
+            // See if tag is image or text and display accordingly
+            if (type.equals("text")) {
+                // do text tag stuff
+                msgOut = TagTool.getReplyByTag(tag);
+                msgSet = true;
+            } else {
+                // do image tag stuff
+                ImageTool.uploadImageAsReply(gmre, reply, type);
+            }
+
+
         }
 
         // Displays message

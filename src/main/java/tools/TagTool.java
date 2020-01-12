@@ -88,15 +88,15 @@ public final class TagTool {
         return -1; // This should never return -1.
     }
 
-    public static int addTag(String tagTag, String tagReply, String tagType, String tagCreator, JDA jda) {
+    public static int addTag(String tagTag, String tagReply, String tagType, String tagCreator) {
         if (TagTool.getTagByTag(tagTag) == null) {
             if (tagArray.add(new Tag(tagTag, tagReply, tagType, tagCreator))) {
                 writeTags();
-                return 1;   // Successfully added new server to config
+                return 1;   // Successfully added new tag
             }
-            return -1;  // Error adding server data
+            return -1;  // Error adding tag
         }
-        return -2;  // Server data already exists in config
+        return -2;  // Tag already exists
     }
 
     public static int removeTag(String tagTag) {
@@ -113,12 +113,11 @@ public final class TagTool {
     }
 
     public static String getReplyByTag(String tagTag) {
-        for (Tag t : tagArray) {
-            if (t.getTag().equals(tagTag)) {
-                return t.getReply();
-            }
-        }
-        return null;
+        return getTagByTag(tagTag).getReply();
+    }
+
+    public static String getTypeByTag(String tagTag) {
+        return getTagByTag(tagTag).getType();
     }
 
     private static Tag getTagByTag(String tagTag) {

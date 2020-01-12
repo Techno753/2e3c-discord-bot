@@ -44,11 +44,22 @@ public final class VerifyMsgTool {
     }
 
     /**
+     * Verifies whether message came from server owner
+     * @param gmre The message event relating to message to check
+     * @return True if message came from server owner, otherwise false
+     */
+    public static boolean isServerOwner(GuildMessageReceivedEvent gmre) {
+        String ownerID = gmre.getGuild().getOwnerId();
+        String userID = gmre.getAuthor().getId();
+
+        return ownerID.equals(userID);
+    }
+
+    /**
      * Verifies whether the message has the correct prefix for the server
      * @param gmre The message event relating to message to check
      * @return True if message has correct prefix, otherwise false
      */
-    // Verifies the message has the correct prefix for the server
     public static boolean hasCorrectPrefix(GuildMessageReceivedEvent gmre) {
         String msgPrefix = gmre.getMessage().getContentRaw().split("")[0];
         String serverPrefix = ConfigTool.getBotPrefixByID(gmre.getGuild().getId());
