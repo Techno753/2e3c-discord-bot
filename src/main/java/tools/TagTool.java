@@ -162,12 +162,20 @@ public final class TagTool {
         return -1;
     }
 
+    public static boolean tagExists(String tagTag) {
+        return getTagByTag(tagTag) != null;
+    }
+
     public static String getReplyByTag(String tagTag) {
         return getTagByTag(tagTag).getReply();
     }
 
     public static String getTypeByTag(String tagTag) {
         return getTagByTag(tagTag).getType();
+    }
+
+    public static String getCreatorByTag(String tagTag) {
+        return getTagByTag(tagTag).getCreator();
     }
 
     private static Tag getTagByTag(String tagTag) {

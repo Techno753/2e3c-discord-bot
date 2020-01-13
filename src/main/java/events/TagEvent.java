@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import tools.ImageTool;
 import tools.RegexTool;
 import tools.TagTool;
+import tools.VerifyMsgTool;
+
 import static tools.VerifyMsgTool.*;
 
 import java.util.ArrayList;
@@ -72,13 +74,20 @@ public class TagEvent extends ListenerAdapter {
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
                 String tag = RegexTool.getGroups("^(?i)rt (\\w+)$", cmdString).get(0);
+                System.out.println("TEST 1");
 
-                int result = TagTool.removeTag(tag);
+                // check that user that wrote message owns tag
+                if (VerifyMsgTool.isTagOwner(gmre, tag) || VerifyMsgTool.hasPrivs(gmre)) {
+                    System.out.println("TEST 2");
+                    int result = TagTool.removeTag(tag);
 
-                if (result == 1) {
-                    msgOut = "Tag removed";
-                } else if (result == -1) {
-                    msgOut = "Tag doesn't exist";
+                    if (result == 1) {
+                        msgOut = "Tag removed";
+                    } else if (result == -1) {
+                        msgOut = "Tag doesn't exist";
+                    }
+                } else {
+                    msgOut = "You do not own this tag";
                 }
                 msgSet = true;
             }
@@ -87,25 +96,31 @@ public class TagEvent extends ListenerAdapter {
         } else if (Pattern.matches("^(?i)t (\\w+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
-                // Get tag
+                // Get tag from msg
                 String tag = RegexTool.getGroups("^(?i)t (\\w+)$", cmdString).get(0);
 
-                // Get tag data
-                String reply = TagTool.getReplyByTag(tag);
-                String type = TagTool.getTypeByTag(tag);
+                // Check that tag exists
+                if (TagTool.tagExists(tag)) {
+                    // Get tag data
+                    String reply = TagTool.getReplyByTag(tag);
+                    String type = TagTool.getTypeByTag(tag);
 
-                // Check if tag is image or text and display accordingly
-                if (type.equals("text")) {
-                    // do text tag stuff
-                    msgOut = TagTool.getReplyByTag(tag);
-                    msgSet = true;
-                } else if (type.equals("image")) {
-                    // do image tag stuff
-                    int result = ImageTool.uploadImageAsReply(gmre, reply, type);
-                    if (result == -1) {
-                        msgOut = "Image wasn't found";
+                    // Check if tag is text or image.
+                    if (type.equals("text")) {
+                        // do text tag stuff
+                        msgOut = TagTool.getReplyByTag(tag);
                         msgSet = true;
+                    } else if (type.equals("image")) {
+                        // do image tag stuff
+                        int result = ImageTool.uploadImageAsReply(gmre, reply, type);
+                        if (result == -1) {
+                            msgOut = "Image wasn't found";
+                            msgSet = true;
+                        }
                     }
+                } else {
+                    msgOut = "Tag doesn't exist";
+                    msgSet = true;
                 }
             }
         }

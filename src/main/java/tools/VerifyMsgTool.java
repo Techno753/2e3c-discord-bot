@@ -72,4 +72,11 @@ public final class VerifyMsgTool {
 
         return (msgPrefix.equals(serverPrefix) || msgPrefix.equals("P"));
     }
+
+    public static boolean isTagOwner(GuildMessageReceivedEvent gmre, String tag) {
+        String messageUserID = gmre.getAuthor().getId();
+        String tagOwnerID = TagTool.getCreatorByTag(tag);
+
+        return messageUserID.equals(tagOwnerID);
+    }
 }
