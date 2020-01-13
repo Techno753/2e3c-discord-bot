@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import tools.ImageTool;
 import tools.RegexTool;
 import tools.TagTool;
-import tools.VerifyMsgTool;
+import static tools.VerifyMsgTool.*;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -22,12 +22,13 @@ public class TagEvent extends ListenerAdapter {
         String msgOut = "";
         boolean msgSet = false;
 
-        if (msgIn.length() > 1 && VerifyMsgTool.hasCorrectPrefix(gmre)) {
+        if (msgIn.length() > 1 && hasCorrectPrefix(gmre)) {
             cmdString = msgIn.toLowerCase().substring(1);
         }
 
         // Adds a text tag
-        if (Pattern.matches("^(?is)att (\\w+)[\\s\\n](.+)$", cmdString)) {
+        if (Pattern.matches("^(?is)att (\\w+)[\\s\\n](.+)$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
                 // Attempt to add tag
                 int result = TagTool.addTextTag(gmre, cmdString);
@@ -42,23 +43,9 @@ public class TagEvent extends ListenerAdapter {
                 msgSet = true;
             }
 
-        // Removes a tag
-        } else if (Pattern.matches("^(?i)rt (\\w+)$", cmdString)) {
-            {
-                String tag = RegexTool.getGroups("^(?i)rt (\\w+)$", cmdString).get(0);
-
-                int result = TagTool.removeTag(tag);
-
-                if (result == 1) {
-                    msgOut = "Tag removed";
-                } else if (result == -1) {
-                    msgOut = "Tag doesn't exist";
-                }
-                msgSet = true;
-            }
-
         // Adds an image tag
-        } else if (Pattern.matches("^(?is)ait (\\w+)$", cmdString)) {
+        } else if (Pattern.matches("^(?is)ait (\\w+)$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
                 // Try to add image tag
                 int resultA = TagTool.addImageTag(gmre, cmdString);
@@ -74,8 +61,31 @@ public class TagEvent extends ListenerAdapter {
                 msgSet = true;
             }
 
+            // Updates a tag
+        } else if (Pattern.matches("asd", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                System.out.println("etc");
+            }
+        // Removes a tag
+        } else if (Pattern.matches("^(?i)rt (\\w+)$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                String tag = RegexTool.getGroups("^(?i)rt (\\w+)$", cmdString).get(0);
+
+                int result = TagTool.removeTag(tag);
+
+                if (result == 1) {
+                    msgOut = "Tag removed";
+                } else if (result == -1) {
+                    msgOut = "Tag doesn't exist";
+                }
+                msgSet = true;
+            }
+
         // Invokes a tag
-        } else if (Pattern.matches("^(?i)t (\\w+)$", cmdString)) {
+        } else if (Pattern.matches("^(?i)t (\\w+)$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
                 // Get tag
                 String tag = RegexTool.getGroups("^(?i)t (\\w+)$", cmdString).get(0);

@@ -33,24 +33,19 @@ public class GenericEvent extends ListenerAdapter {
 
         // Replies Pong!
         if (Pattern.matches("^(?i)ping$", cmdString) &&
-                        (isBotCreator(gmre) ||
-                        isBotAdmin(gmre) ||
-                        isCmdChannel(gmre))) {
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
             msgOut = "Pong!";
             msgSet = true;
 
         // Replies World!
         } else if (Pattern.matches("^(?i)hello$", cmdString) &&
-                        (isBotCreator(gmre) ||
-                        isBotAdmin(gmre) ||
-                        isCmdChannel(gmre))) {
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
             msgOut = "World!";
             msgSet = true;
 
         // Pings Apple, kek.
         } else if (Pattern.matches("^(?i)pa$", cmdString) &&
-                (isBotCreator(gmre) ||
-                        isBotAdmin(gmre))) {
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
             if (isBotAdmin(gmre)) {
                 msgOut = "<@177473493816836098>";
                 msgSet = true;

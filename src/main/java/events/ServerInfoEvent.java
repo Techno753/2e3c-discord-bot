@@ -6,8 +6,12 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import tools.ConfigTool;
+import tools.VerifyMsgTool;
 
 import java.util.regex.Pattern;
+
+import static tools.VerifyMsgTool.hasPrivs;
+import static tools.VerifyMsgTool.isCmdChannel;
 
 
 /**
@@ -27,12 +31,13 @@ public class ServerInfoEvent extends ListenerAdapter {
         String msgOut = "";
         boolean msgSet = false;
 
-        if (msgIn.length() > 1) {
+        if (msgIn.length() > 1 && VerifyMsgTool.hasCorrectPrefix(gmre)) {
             cmdString = msgIn.toLowerCase().substring(1);
         }
 
         // Gets channel information
-        if (Pattern.matches("^(?i)cinfo$", cmdString)) {
+        if (Pattern.matches("^(?i)cinfo$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
             try {
                 eb.setTitle("Channel Information");
                 eb.addField("Channel Name", gmre.getChannel().getName(), true);
@@ -47,7 +52,8 @@ public class ServerInfoEvent extends ListenerAdapter {
             }
 
         // Gets server information
-        } else if (Pattern.matches("^(?i)sinfo$", cmdString)) {
+        } else if (Pattern.matches("^(?i)sinfo$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
             try {
                 eb.setTitle("Server Information");
                 eb.addField("Server Name", gmre.getGuild().getName(), true);

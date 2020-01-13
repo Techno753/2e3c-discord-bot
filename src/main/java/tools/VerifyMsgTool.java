@@ -1,5 +1,6 @@
 package tools;
 
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 import java.util.ArrayList;
@@ -60,6 +61,11 @@ public final class VerifyMsgTool {
      * @param gmre The message event relating to message to check
      * @return True if message has correct prefix, otherwise false
      */
+
+    public static boolean hasPrivs(GuildMessageReceivedEvent gmre) {
+        return isBotAdmin(gmre) || isServerOwner(gmre) || isBotCreator(gmre);
+    }
+
     public static boolean hasCorrectPrefix(GuildMessageReceivedEvent gmre) {
         String msgPrefix = gmre.getMessage().getContentRaw().split("")[0];
         String serverPrefix = ConfigTool.getBotPrefixByID(gmre.getGuild().getId());

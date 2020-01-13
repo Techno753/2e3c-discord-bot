@@ -12,6 +12,8 @@ import tools.VerifyMsgTool;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static tools.VerifyMsgTool.*;
+
 /**
  * Event listener for server config related events
  */
@@ -71,44 +73,47 @@ public class ServerConfigEvent extends ListenerAdapter {
         String cmdString = "";
         boolean msgSet = false;
 
-        if (msgIn.length() > 1) {
+        if (msgIn.length() > 1 && VerifyMsgTool.hasCorrectPrefix(gmre)) {
             cmdString = msgIn.substring(1);
         }
 
         // Gets information on all servers
-        if (Pattern.matches("^(?i)servers$", cmdString)) {
-            if (VerifyMsgTool.isBotCreator(gmre) && VerifyMsgTool.hasCorrectPrefix(gmre)) {
-                msgOut = ConfigTool.getStringAll(gmre.getJDA());
-                msgSet = true;
+        if (Pattern.matches("^(?i)servers$", cmdString) &&
+                isBotCreator(gmre)) {
+            {
+                if (VerifyMsgTool.isBotCreator(gmre) && VerifyMsgTool.hasCorrectPrefix(gmre)) {
+                    msgOut = ConfigTool.getStringAll(gmre.getJDA());
+                    msgSet = true;
+                }
             }
 
         // Gets information on the server messaged on
-        } else if (Pattern.matches("^(?i)server$", cmdString)) {
-            if ((VerifyMsgTool.isBotAdmin(gmre) || VerifyMsgTool.isBotCreator(gmre))
-                    || VerifyMsgTool.hasCorrectPrefix(gmre)) {
-
+        } else if (Pattern.matches("^(?i)server$", cmdString) &&
+        hasPrivs(gmre)) {
                 msgOut = ConfigTool.getStringByID(gmre.getGuild().getId(), gmre.getJDA());
                 msgSet = true;
-            }
+
 
         // Updates server configs if they mismatch
-        } else if (Pattern.matches("^(?i)updateservers$", cmdString)) {
+        } else if (Pattern.matches("^(?i)updateservers$", cmdString) &&
+                isBotCreator(gmre)) {
             ConfigTool.updateServers(gmre.getJDA());
 
         // Changes the command prefix for a server
-        } else if (Pattern.matches("^(?i)prefix .$", cmdString)) {
-            if ((VerifyMsgTool.isBotAdmin(gmre) && VerifyMsgTool.hasCorrectPrefix(gmre))
-                    || VerifyMsgTool.isBotCreator(gmre)) {
-                String prefix = msgIn.split(" ")[1];
-                ConfigTool.setServerPrefixByID(gmre.getGuild().getId(),
-                        msgIn.split(" ")[1]);
-                ConfigTool.writeConfig();
-                msgOut = "Server prefix set to: " + prefix;
-                msgSet = true;
-            }
+        } else if (Pattern.matches("^(?i)prefix .$", cmdString) &&
+                hasPrivs(gmre)) {
+
+            String prefix = msgIn.split(" ")[1];
+            ConfigTool.setServerPrefixByID(gmre.getGuild().getId(),
+                    msgIn.split(" ")[1]);
+            ConfigTool.writeConfig();
+            msgOut = "Server prefix set to: " + prefix;
+            msgSet = true;
+
 
         // Adds a bot admin for the server
-        } else if (Pattern.matches("^(?i)addba <@!?\\d+>$", cmdString)) {
+        } else if (Pattern.matches("^(?i)addba <@!?\\d+>$", cmdString) &&
+                hasPrivs(gmre)) {
             String userID = RegexTool.getGroups("^(?i)addba <@!?(\\d+)>$", cmdString).get(0);
 
             // Check that user exists on the server
@@ -128,7 +133,8 @@ public class ServerConfigEvent extends ListenerAdapter {
             msgSet = true;
 
         // Removes a bot admin for the server
-        } else if (Pattern.matches("^(?i)remba <@!?\\d+>$", cmdString)) {
+        } else if (Pattern.matches("^(?i)remba <@!?\\d+>$", cmdString) &&
+                hasPrivs(gmre)) {
             String userID = RegexTool.getGroups("^(?i)remba <@!?(\\d+)>$", cmdString).get(0);
 
             int result = ConfigTool.removeBotAdminByID(gmre.getGuild().getId(), userID, gmre.getJDA());
@@ -143,7 +149,8 @@ public class ServerConfigEvent extends ListenerAdapter {
             msgSet = true;
 
         // Adds a bot channel for this server
-        } else if (Pattern.matches("^(?i)addbc <#\\d+>$", cmdString)) {
+        } else if (Pattern.matches("^(?i)addbc <#\\d+>$", cmdString) &&
+                hasPrivs(gmre)) {
             String channelID = RegexTool.getGroups("^(?i)addbc <#(\\d+)>$", cmdString).get(0);
 
             int result = ConfigTool.addBotChannelByID(channelID, gmre);
@@ -162,7 +169,8 @@ public class ServerConfigEvent extends ListenerAdapter {
             msgSet = true;
 
         // Removes a bot channel for this server
-        } else if (Pattern.matches("^(?i)rembc <#\\d+>$", cmdString)) {
+        } else if (Pattern.matches("^(?i)rembc <#\\d+>$", cmdString) &&
+                hasPrivs(gmre)) {
             String channelID = RegexTool.getGroups("^(?i)rembc <#(\\d+)>$", cmdString).get(0);
 
 
