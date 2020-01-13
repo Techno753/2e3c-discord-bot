@@ -52,8 +52,6 @@ public class TagEvent extends ListenerAdapter {
                 if (result == 1) {
                     msgOut = "Tag removed";
                 } else if (result == -1) {
-                    msgOut = "Image relating to tag not found";
-                } else if (result == -2) {
                     msgOut = "Tag doesn't exist";
                 }
                 msgSet = true;

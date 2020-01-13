@@ -21,7 +21,6 @@ public final class FileTool {
      */
     public static int downloadFileByURL(String src, String dest) {
         try {
-            // https://cdn.discordapp.com/attachments/99218035843301376/665864870331416597/586280686298857502.png
             URL url = new URL(src);
 
             // Try to get image data as bytearray
@@ -33,12 +32,14 @@ public final class FileTool {
                     output.write(buffer, 0, n);
                 }
             } catch (Exception e) {
+                System.out.println("Error getting data from image URL");
                 return -2;  // Error getting data from image URL
             }
 
             try (FileOutputStream fos = new FileOutputStream(dest)) {
                 fos.write(output.toByteArray());
             } catch (Exception e) {
+                System.out.println("Error writing image data to file");
                 return -3;  // Error writing image data to file
             }
             return 1;
@@ -49,7 +50,7 @@ public final class FileTool {
         }
     }
 
-    public static File getLocalImage(String src) {
+    public static File getLocalFile(String src) {
         try {
             return new File(src);
         } catch (Exception e) {
@@ -58,8 +59,29 @@ public final class FileTool {
         return null;
     }
 
+    public static FileReader getLocalFileToRead(String src) {
+        try {
+            return new FileReader(new File(src));
+        } catch (Exception e) {
+            System.out.println("File not found.");
+        }
+        return null;
+    }
+
+    public static int writeStringToFile(String s, String dest) {
+        try {
+            FileWriter file = new FileWriter(dest);
+            file.write(s);
+            file.flush();
+            return 1;
+        } catch (Exception e) {
+            System.out.println("Error writing to file");
+            return -1;
+        }
+    }
+
     public static int deleteFile(String src) {
-        File file = getLocalImage(src);
+        File file = getLocalFile(src);
         if (file.delete()) {
             return 1;   // File successfully deleted
         }

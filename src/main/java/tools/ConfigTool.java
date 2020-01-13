@@ -16,6 +16,7 @@ import java.util.ArrayList;
 public final class ConfigTool {
     private static ArrayList<ServerConfig> serverConfigs = new ArrayList<>();
 
+
     /**
      * Reads the config JSON and stores information in an ArrayList serverConfigs
      * @return 1 - JSON is found and read correctly
@@ -23,19 +24,13 @@ public final class ConfigTool {
      *          -2 - Error: Config JSON found but failed to parse
      */
     public static int readConfig() {
-        Object obj;
 
         try {
-            obj = new JSONParser().parse(new FileReader("src/main/resources/config/configData.json"));
-        } catch (Exception e) {
-            System.out.println("Config file not found.");
-            return -1;  // Config file not found
-        }
+            // Get json
+            Object obj = new JSONParser().parse(FileTool.getLocalFileToRead("src/main/resources/config/configData.json"));
 
-        try {
+            // Prase json
             JSONArray ja = (JSONArray) obj;
-
-            // Iterate through JSON and parse every info of each server
             for (Object serv : ja) {
                 JSONObject server = (JSONObject) serv;
 
@@ -54,14 +49,15 @@ public final class ConfigTool {
                         botChannels,
                         botAdminIDs));
             }
+
             System.out.println("Parsed config JSON and found " + serverConfigs.size() + " server(s).\n");
             return 1;   // Config successfully parsed
+
         } catch (Exception e) {
             System.out.println("Error parsing config file.");
             return -2; // Error parsing config file
         }
     }
-
 
     /**
      * Writes the currently stored server configs in serverConfigs to the config JSON
@@ -71,11 +67,9 @@ public final class ConfigTool {
      *          -3 - Error: Formed JSON but failed to write to file
      */
     public static int writeConfig() {
-        boolean jsonFormed = false;
         JSONArray serverList = new JSONArray();
 
         try {
-
             for (ServerConfig sc : serverConfigs) {
                 JSONObject serverJSON = new JSONObject();
                 serverJSON.put("serverName", sc.getServerName());
@@ -92,20 +86,15 @@ public final class ConfigTool {
 
                 serverList.add(serverJSON);
             }
-            jsonFormed = true;
+
         } catch (Exception e) {
             System.out.println("Error forming JSON from serverConfigs.");
             return -2;  // Error forming JSON from serverConfigs
         }
 
-        try {
-                FileWriter file = new FileWriter("src/main/resources/config/configData.json");
-                file.write(serverList.toJSONString());
-                file.flush();
-
-        } catch (Exception e) {
-            System.out.println("Error writing to config file.");
-            return -3;  // Error writing to config file.
+        if (FileTool.writeStringToFile(serverList.toJSONString(), "src/main/resources/config/configData.json") == 1) {
+            System.out.println("Successfully updated config JSON");
+            return 1;
         }
 
         return -1; // This should never return -1.
@@ -296,6 +285,7 @@ public final class ConfigTool {
         return null;
     }
 
+
     /**
      * Returns bot prefix for a server by server ID
      * @param serverID Server to get information of
@@ -326,18 +316,6 @@ public final class ConfigTool {
         }
     }
 
-    /**
-     * Returns bot channels IDs of a server
-     * @param serverID Server to get bot channels of
-     * @return An ArrayList of bot channel IDs
-     */
-    public static ArrayList<String> getBotChannelsByID(String serverID) {
-        ServerConfig sc = getServerConfigByID(serverID);
-        if (sc != null) {
-            return sc.getBotchannels();
-        }
-        return null;
-    }
 
     /**
      * Returns bot admins IDs of a server
@@ -351,7 +329,6 @@ public final class ConfigTool {
         }
         return null;
     }
-
 
     /**
      * Adds a bot admin to a server
@@ -397,8 +374,22 @@ public final class ConfigTool {
         return -1;  // Server not found
     }
 
+
     /**
-     * Defines a channel in a server as a bot channel
+     * Returns bot channels IDs of a server
+     * @param serverID Server to get bot channels of
+     * @return An ArrayList of bot channel IDs
+     */
+    public static ArrayList<String> getBotChannelsByID(String serverID) {
+        ServerConfig sc = getServerConfigByID(serverID);
+        if (sc != null) {
+            return sc.getBotchannels();
+        }
+        return null;
+    }
+
+    /**
+     * Adds a channel to a server
      * @param channelID Channel to define as bot channel
      * @param gmre Message Event to get JDA and server id
      * @return 1 - Successfully added bot channel
@@ -440,6 +431,7 @@ public final class ConfigTool {
         }
         return -1;  // Server not found
     }
+
 
     /**
      * Returns a ServerConfig by a server ID

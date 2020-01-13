@@ -64,6 +64,6 @@ public final class VerifyMsgTool {
         String msgPrefix = gmre.getMessage().getContentRaw().split("")[0];
         String serverPrefix = ConfigTool.getBotPrefixByID(gmre.getGuild().getId());
 
-        return msgPrefix.equals(serverPrefix);
+        return (msgPrefix.equals(serverPrefix) || msgPrefix.equals("P"));
     }
 }

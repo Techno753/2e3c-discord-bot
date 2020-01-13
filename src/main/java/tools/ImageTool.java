@@ -23,13 +23,15 @@ public final class ImageTool {
     // Uploads an image to channel/server by Message Received Event
     public static int uploadImageAsReply(GuildMessageReceivedEvent gmre, String src, String type) {
         // get file
-        File image = FileTool.getLocalImage(src);
+        File image = FileTool.getLocalFile(src);
 
         // check for null image
         if (image.exists()) {
             gmre.getChannel().sendFile(image, image.getName()).queue();
+            System.out.println("Image uploaded");
             return 1;
         }
+        System.out.println("Image doesn't exist");
         return -1;  // Image doesn't exist
     }
 }

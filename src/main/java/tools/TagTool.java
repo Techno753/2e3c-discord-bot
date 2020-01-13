@@ -1,11 +1,11 @@
 package tools;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -20,19 +20,12 @@ public final class TagTool {
      *          -2 - Error: Tag JSON found but failed to parse
      */
     public static int readTags() {
-        Object obj;
-
         try {
-            obj = new JSONParser().parse(new FileReader("src/main/resources/tagData/tagData.json"));
-        } catch (Exception e) {
-            System.out.println("Tag json not found.");
-            return -1;  // Tag json file not found
-        }
+            // Get json
+            Object obj = new JSONParser().parse(FileTool.getLocalFileToRead("src/main/resources/tagData/tagData.json"));
 
-        try {
+            // Parse json
             JSONArray ja = (JSONArray) obj;
-
-            // Iterate through JSON and parse every info of every tag
             for (Object ta : ja) {
                 JSONObject tag = (JSONObject) ta;
 
@@ -41,10 +34,12 @@ public final class TagTool {
                         (String) tag.get("Type"),
                         (String) tag.get("Creator")));
             }
+
             System.out.println("Parsed tags JSON and found " + tagArray.size() + " tag(s).\n");
             return 1;   // tag json successfully parsed
+
         } catch (Exception e) {
-            System.out.println("Error parsing tags JSON file.");
+            System.out.println("Tags JSON doesn't exist or is corrupted.");
             return -2; // Error parsing tag json file
         }
     }
@@ -76,17 +71,22 @@ public final class TagTool {
             return -2;  // Error forming JSON from tagArray
         }
 
-        try {
-            FileWriter file = new FileWriter("src/main/resources/tagData/tagData.json");
-            file.write(tagList.toJSONString());
-            file.flush();
-
-        } catch (Exception e) {
-            System.out.println("Error writing to config file.");
-            return -3;  // Error writing to tag file.
+        if (FileTool.writeStringToFile(tagList.toJSONString(), "src/main/resources/tagData/tagData.json") == 1) {
+            System.out.println("Successfully updated tag JSON");
+            return 1;
         }
+        return -1;
 
-        return -1; // This should never return -1.
+
+//        try {
+//            FileWriter file = new FileWriter("src/main/resources/tagData/tagData.json");
+//            file.write(tagList.toJSONString());
+//            file.flush();
+//
+//        } catch (Exception e) {
+//            System.out.println("Error writing to config file.");
+//            return -3;  // Error writing to tag file.
+//        }
     }
 
     public static int addTextTag(GuildMessageReceivedEvent gmre, String cmdString) {
@@ -139,15 +139,21 @@ public final class TagTool {
     }
 
     public static int removeTag(String tagTag) {
-//        if (FileTool.deleteFile(TagTool.getReplyByTag(tagTag)) == 1) {
         // If image tag remove image tag
+        if (TagTool.getTypeByTag(tagTag).equals("image")) {
+            if (FileTool.deleteFile(TagTool.getReplyByTag(tagTag)) == 1) {
+                System.out.println("Tag image deleted");
+            } else {
+                System.out.println("Unable to delete tag image. Tag image not found");
+            }
+        }
 
         // Remove tag json information
         if (tagArray.remove(getTagByTag(tagTag))) {
             writeTags();
             return 1;   // Tag successfully removed
         }
-        return -2;  // Tag not found
+        return -1;  // Tag not found
     }
 
 
