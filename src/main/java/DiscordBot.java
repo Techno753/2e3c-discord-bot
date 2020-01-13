@@ -13,7 +13,7 @@ public class DiscordBot {
 
         // Initialise bot and connection to discord
         JDABuilder builder = new JDABuilder(AccountType.BOT);
-        String token = InputTool.inputFromTerminal();
+        String token = InputTool.inputFromTerminal("Enter token: ");
         builder.setToken(token);
 
         builder.addEventListeners(new StartEvent(),

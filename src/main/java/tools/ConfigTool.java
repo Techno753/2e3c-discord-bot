@@ -346,6 +346,7 @@ public final class ConfigTool {
             if (VerifyInTool.verifyUserInServer(serverID, userID, gmre.getJDA()) == 1) {
                 if (!sc.getBotAdminIDs().contains(userID)) {
                     sc.addBotAdminID(userID);
+                    return 1;   // Bot admin added successfully
                 }
                 return -3;  // Bot admin already exists
             }
@@ -403,6 +404,7 @@ public final class ConfigTool {
         if (sc != null) {
             if (VerifyInTool.verifyChannelInServer(serverID, channelID, gmre.getJDA()) == 1) {
                 if (!sc.getBotchannels().contains(channelID)) {
+                    sc.addBotChannel(channelID);
                     return 1;
                 }
                 return -3; // Channel already bot channel
