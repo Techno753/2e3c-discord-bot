@@ -3,9 +3,14 @@ package events;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import tools.ImageTool;
+import tools.RegexTool;
 import tools.VerifyMsgTool;
 
+import java.util.ArrayList;
 import java.util.regex.Pattern;
+
+import static tools.VerifyMsgTool.hasPrivs;
+import static tools.VerifyMsgTool.isCmdChannel;
 
 /**
  * Used to test things.
@@ -23,16 +28,15 @@ public class TestEvent extends ListenerAdapter {
         }
 
         // Tests is user is a bot admin
-        if (Pattern.matches("^(?i)imagetest$", cmdString)) {
-            int result = ImageTool.downloadImageFromMessage(gmre, "defTag");
+        if (Pattern.matches("^(?i)yttest (.+)$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
 
-            if (result == 1) {
-                msgOut = "Message contains image!";
-            } else if (result == -1) {
-                msgOut = "Message does not contain image";
-            }
-            msgSet = true;
+            ArrayList<String> terms = RegexTool.getGroups("^(?is)testaudio (.+)$", cmdString);
+            String term = terms.get(0);
+
+            System.out.println("Searching: " + term);
         }
+
 
         if (msgSet) {
             gmre.getChannel().sendMessage(msgOut).queue();

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import tools.ConfigTool;
 import tools.InputTool;
+import tools.YTTool;
 
 public class DiscordBot {
     public static void main(String[] args) throws Exception{
@@ -13,14 +14,17 @@ public class DiscordBot {
 
         // Initialise bot and connection to discord
         JDABuilder builder = new JDABuilder(AccountType.BOT);
-        String token = InputTool.inputFromTerminal("Enter token: ");
-        builder.setToken(token);
+        String discToken = InputTool.inputFromTerminal("Enter Discord token: ");
+        builder.setToken(discToken);
+        String GoogleKey = InputTool.inputFromTerminal("Enter Google API key: ");
+        YTTool.setAPIKey(GoogleKey);
 
         builder.addEventListeners(new StartEvent(),
                 new GenericEvent(),
                 new RNGEvent(),
                 new TagEvent(),
                 new ServerInfoEvent(),
+                new AudioEvent(),
 
                 new ServerConfigEvent(),
 

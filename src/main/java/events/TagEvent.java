@@ -40,7 +40,8 @@ public class TagEvent extends ListenerAdapter {
                 } else if (result == -1) {
                     msgOut = "Error creating tag.";
                 } else if (result == -2) {
-                    msgOut = "Tag already exists. If you are the creator of this tag, use \"<prefix>utt <tag> <reply>\"";
+                    msgOut = "Tag already exists. If you are the creator of this tag you may delete it with " +
+                                "\"<prefix>rt <tag name>\" and create a new one.";
                 }
                 msgSet = true;
             }
@@ -63,12 +64,6 @@ public class TagEvent extends ListenerAdapter {
                 msgSet = true;
             }
 
-            // Updates a tag
-        } else if (Pattern.matches("asd", cmdString) &&
-                (isCmdChannel(gmre) || hasPrivs(gmre))) {
-            {
-                System.out.println("etc");
-            }
         // Removes a tag
         } else if (Pattern.matches("^(?i)rt (\\w+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
