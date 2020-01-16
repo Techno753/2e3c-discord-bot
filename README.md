@@ -25,7 +25,7 @@ Users can create custom image and text responses and use them in any server.
 - Text tag: ```^att <tag> <response>```
 - Image tag: ```^ait <tag>``` with an image upload
 
-Tags can be called by any user in any server with ```^t /<tag/>```
+Tags can be called by any user in any server with ```^t <tag>```
 
 Tags can only be deleted by their creator with ```^rt```
 
