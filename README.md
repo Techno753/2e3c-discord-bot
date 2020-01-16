@@ -11,8 +11,8 @@ Personal discord bot to practice Java and APIs
 ## Music
 [Commands](#music-commands-wip)
 Music can be played by 2 methods.
-  With a YouTube Link: ```^mplay <YouTube Link>```
-  By searching and choosing:  ```^msearch <Search Term>``` then ```^mpick <1 - 10>```
+- With a YouTube Link: ```^mplay <YouTube Link>```
+- By searching and choosing:  ```^msearch <Search Term>``` then ```^mpick <1 - 10>```
   
 When a YouTube video is queued, the bot will join the voice channel that the user is in.
 If the bot is in a different channel of the same server, the bot will move channels to follow the user. This currently maintains the queued videos.
