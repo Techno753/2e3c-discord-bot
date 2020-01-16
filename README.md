@@ -8,7 +8,7 @@ Personal discord bot to practice Java and APIs
 4. Optionally, change the command prefix with `^prefix <prefix>`
 5. You're set!
 
-## Music
+## Music (WIP)
 [Commands](#music-commands-wip)
 Music can be played by 2 methods.
 - With a YouTube Link: ```^mplay <YouTube Link>```
