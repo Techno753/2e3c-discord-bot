@@ -8,10 +8,21 @@ Personal discord bot to practice Java and APIs
 4. Optionally, change the command prefix with `^prefix <prefix>`
 5. You're set!
 
+## Music
+[Commands](#music-commands-wip)
+Music can be played by 2 methods.
+  With a YouTube Link: ```^mplay <YouTube Link>```
+  By searching and choosing:  ```^msearch <Search Term>``` then ```^mpick <1 - 10>```
+  
+When a YouTube video is queued, the bot will join the voice channel that the user is in.
+If the bot is in a different channel of the same server, the bot will move channels to follow the user. This currently maintains the queued videos.
+
+```^mdc``` will disconnect the bot from its current voice channel and clear any queued videos.
+
 ## Commands
 
 ### Bot Admins
-Bot Admins are server owners and other users set by the server owner that can invoke elevated commands. Commands that require the user to be a Bot Admin will be marked with "BA" in the Permissions columns.
+Bot Admins are users set by the server owner that can use elevated commands. Commands that require the user to be a Bot Admin will be marked with "BA" in the Permissions columns.
 
 ### Bot Channels
 Bot Channels are channels set by Bot Admins that allow non-Bot Admin users to use commands.
