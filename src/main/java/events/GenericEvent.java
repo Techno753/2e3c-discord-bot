@@ -45,11 +45,9 @@ public class GenericEvent extends ListenerAdapter {
 
         // Pings Apple, kek.
         } else if (Pattern.matches("^(?i)pa$", cmdString) &&
-                (isCmdChannel(gmre) || hasPrivs(gmre))) {
-            if (isBotAdmin(gmre)) {
-                msgOut = "<@177473493816836098>";
-                msgSet = true;
-            }
+            hasPrivs(gmre)) {
+            msgOut = "<@177473493816836098>";
+            msgSet = true;
         }
 
         // Displays message

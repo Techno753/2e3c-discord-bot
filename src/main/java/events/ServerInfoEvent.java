@@ -37,11 +37,12 @@ public class ServerInfoEvent extends ListenerAdapter {
 
         // Gets channel information
         if (Pattern.matches("^(?i)cinfo$", cmdString) &&
-                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+                isCmdChannel(gmre)) {
             try {
                 eb.setTitle("Channel Information");
                 eb.addField("Channel Name", gmre.getChannel().getName(), true);
-                eb.addField("Channel Topic", gmre.getChannel().getTopic(), true);
+//                eb.addField("Channel Topic", gmre.getChannel().getTopic(), true);
+                eb.addField("Channel Topic", (gmre.getChannel().getTopic() != null) ? gmre.getChannel().getTopic() : "No Topic", true);
                 eb.addField("Is NSFW", Boolean.toString(gmre.getChannel().isNSFW()), true);
                 eb.addField("Channel ID", gmre.getChannel().getId(), true);
                 eb.setThumbnail(gmre.getGuild().getIconUrl());
@@ -49,11 +50,12 @@ public class ServerInfoEvent extends ListenerAdapter {
                 msgSet = true;
             } catch (Exception e) {
                 System.out.println("Failed to obtain channel information.");
+                e.printStackTrace();
             }
 
         // Gets server information
         } else if (Pattern.matches("^(?i)sinfo$", cmdString) &&
-                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+                isCmdChannel(gmre)) {
             try {
                 eb.setTitle("Server Information");
                 eb.addField("Server Name", gmre.getGuild().getName(), true);
