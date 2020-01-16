@@ -160,11 +160,11 @@ public class AudioEvent extends ListenerAdapter {
             }
 
         // Skips to given song index TODO
-        } else if (Pattern.matches("^(?i)mskip ([\\d]+)$", cmdString) &&
+        } else if (Pattern.matches("^(?i)mskipto ([\\d]+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
                 // get argument
-                int ind = Integer.parseInt(RegexTool.getGroups("^(?i)mskip ([\\d]+)$", cmdString).get(0));
+                int ind = Integer.parseInt(RegexTool.getGroups("^(?i)mskipto ([\\d]+)$", cmdString).get(0));
 
                 // check num skips is less than songs remaining
                 if (ind <= AudioTool.getServerTS(gmre.getGuild().getId()).getQueue().size()) {
