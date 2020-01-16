@@ -7,6 +7,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
@@ -30,9 +31,21 @@ public class TrackScheduler extends AudioEventAdapter {
         player.startTrack(queue.poll(), false);
     }
 
+    public void skip() {
+        try {
+            queue.poll(3, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            System.out.println("Error skipping song(s)");
+        }
+    }
+
     public void clear() {
         player.stopTrack();
         queue.clear();
+    }
+
+    public BlockingQueue<AudioTrack> getQueue() {
+        return queue;
     }
 
     // If the track ended normally then play next track

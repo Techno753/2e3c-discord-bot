@@ -13,6 +13,7 @@ import tools.audio.MyAudioLoadResultHandler;
 import tools.audio.TrackScheduler;
 
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public final class AudioTool {
@@ -160,12 +161,113 @@ public final class AudioTool {
             }
 
             // Form string
-            return "Currently Playing: " + title + "\n" +
+            return  title + "\n" +
                     posMinStr + ":" + posSecStr + "/" + durMinStr + ":" + durSecStr + " | " + progString;
 
         } else {
             return null;
         }
+    }
+
+    public static String getQueueString(GuildMessageReceivedEvent gmre) {
+        String out = "";
+        TrackScheduler ts;
+
+        if ((ts = getServerTS(gmre.getGuild().getId())) != null) {
+            BlockingQueue<AudioTrack> q = ts.getQueue();
+
+            if (q.size() == 0) {
+                return "Empty";
+            } else {
+                int count = 1;
+                for (AudioTrack at : q) {
+                    out += count + " - " + YTTool.getTitleByID(at.getIdentifier()) + "\n";
+                    count++;
+                }
+                return out;
+            }
+        }
+
+        return null;
+    }
+
+    public static int pausePlayback(GuildMessageReceivedEvent gmre) {
+        if (exists(gmre.getGuild().getId())) {
+            AudioPlayer ap = getServerAP(gmre.getGuild().getId());
+            if (ap.getPlayingTrack() != null) {
+                if (!ap.isPaused()) {
+                    ap.setPaused(true);
+                    return 1;   // paused
+                }
+                return -3; // already paused
+            }
+            return -2; // not playing
+        }
+        return -1; // not connected
+    }
+
+    public static int resumePlayback(GuildMessageReceivedEvent gmre) {
+        if (exists(gmre.getGuild().getId())) {
+            AudioPlayer ap = getServerAP(gmre.getGuild().getId());
+            if (ap.getPlayingTrack() != null) {
+                if (ap.isPaused()) {
+                    ap.setPaused(false);
+                    return 1;   // resumed
+                }
+                return -3; // already playing
+            }
+            return -2; // not playing
+        }
+        return -1; // not connected
+    }
+
+    public static int skip(GuildMessageReceivedEvent gmre) {
+        AudioPlayer ap;
+        TrackScheduler ts;
+
+        // check connected
+        if (exists(gmre.getGuild().getId())) {
+            // check if playing
+            if ((ap = getServerAP(gmre.getGuild().getId())).getPlayingTrack() != null) {
+                // check trackscheduler has another song || User may want to skip last song so allow skipping without any new ones to load
+//                if ((ts = getServerTS(gmre.getGuild().getId())).getQueue().size() > 0) {
+                    // stop current and play next TODO
+                    ap.stopTrack();
+                    ts = getServerTS(gmre.getGuild().getId());
+                    ts.nextTrack();
+                    return 1;
+//                }
+//                return -3; // no more songs in queue
+            }
+            return -2; // not playing
+        }
+        return -1; // not connected
+    }
+
+    public static int skipN(GuildMessageReceivedEvent gmre, int n) {
+        AudioPlayer ap;
+        TrackScheduler ts;
+
+        // check connected
+        if (exists(gmre.getGuild().getId())) {
+            // check if playing
+            if ((ap = getServerAP(gmre.getGuild().getId())).getPlayingTrack() != null) {
+                // check trackscheduler has another/enough song
+//                if ((ts = getServerTS(gmre.getGuild().getId())).getQueue().size() > 0) {
+                // stop current and play next TODO
+                ap.stopTrack();
+                ts = getServerTS(gmre.getGuild().getId());
+                for (int i = 0; i < (n-1); i++) {
+                    ts.skip();
+                }
+                ts.nextTrack();
+                return 1;
+//                }
+//                return -3; // no more songs in queue
+            }
+            return -2; // not playing
+        }
+        return -1; // not connected
     }
 
     // Connection property getters
