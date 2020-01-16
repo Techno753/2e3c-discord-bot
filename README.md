@@ -9,15 +9,25 @@ Personal discord bot to practice Java and APIs
 5. You're set!
 
 ## Music (WIP)
-[Commands](#music-commands-wip)
+[Commands](#music-commands-wip)  
 Music can be played by 2 methods.
 - With a YouTube Link: ```^mplay <YouTube Link>```
-- By searching and choosing:  ```^msearch <Search Term>``` then ```^mpick <1 - 10>```
+- By searching and choosing:  ```^msearch <Search Term>``` then ```^mpick <1 - 5>```
   
 When a YouTube video is queued, the bot will join the voice channel that the user is in.
 If the bot is in a different channel of the same server, the bot will move channels to follow the user. This currently maintains the queued videos.
 
 ```^mdc``` will disconnect the bot from its current voice channel and clear any queued videos.
+
+## Tags
+[Commands](#tag-commands)  
+Users can create custom image and text responses and use them in any server.
+- Text tag: ```^att /<tag/> /<response/>```
+- Image tag: ```^ait /<tag/>``` with an image upload
+
+Tags can be called by any user in any server with ```^t /<tag/>```
+
+Tags can only be deleted by their creator with ```^rt```
 
 ## Commands
 
@@ -65,8 +75,8 @@ Command | Perms | Description | Example
 ^mpick \<1 - 5\> | User | Following a `^msearch` command, will play the chosen video. | ^mpick 3
 ^mpause | User | Pauses audio if the bot is currently playing something. | 
 ^mresume | User | Resumes audio if the bot was paused. | 
-^skip | User | Skips the currently playing audio. | 
-^skipto \<n\> | User | Skips to the n-th audio in queue. | ^skipto 3
+^mskip | User | Skips the currently playing audio. | 
+^mskipto \<n\> | User | Skips to the n-th audio in queue. | ^skipto 3
 ^mnp | User | Displays information on the currently playing audio. | 
 ^mq | User | Displays the currently queued audios. | 
 ^mdc | User | Disconneccts the bot from the current voice channel | 
