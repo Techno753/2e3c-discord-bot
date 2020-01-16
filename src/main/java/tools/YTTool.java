@@ -111,27 +111,27 @@ public class YTTool {
         return null;
     }
 
-    public static String getTitleByID(String videoID) {
-
-        try {
-            YouTube.Videos.List request = yt.videos().list("snippet");
-            VideoListResponse response = request.setId(videoID).execute();
-
-            String responseString = response.toString();
-
-            // Get JSON Object
-            JSONParser parser = new JSONParser();
-            JSONObject jo = (JSONObject) parser.parse(responseString);
-
-            JSONArray ja = (JSONArray) jo.get("items");
-            JSONObject vid = (JSONObject) ja.get(0);
-            JSONObject snip = (JSONObject) vid.get("snippet");
-
-            return snip.get("title").toString();
-
-        } catch (Exception e) {
-            System.out.println("Error fetching Video data");
-        }
-        return "ERROR";
-    }
+//    public static String getTitleByID(String videoID) {
+//
+//        try {
+//            YouTube.Videos.List request = yt.videos().list("snippet");
+//            VideoListResponse response = request.setId(videoID).execute();
+//
+//            String responseString = response.toString();
+//
+//            // Get JSON Object
+//            JSONParser parser = new JSONParser();
+//            JSONObject jo = (JSONObject) parser.parse(responseString);
+//
+//            JSONArray ja = (JSONArray) jo.get("items");
+//            JSONObject vid = (JSONObject) ja.get(0);
+//            JSONObject snip = (JSONObject) vid.get("snippet");
+//
+//            return snip.get("title").toString();
+//
+//        } catch (Exception e) {
+//            System.out.println("Error fetching Video data");
+//        }
+//        return "ERROR";
+//    }
 }

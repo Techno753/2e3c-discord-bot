@@ -1,6 +1,5 @@
 package events;
 
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -32,7 +31,7 @@ public class AudioEvent extends ListenerAdapter {
             cmdString = msgIn.substring(1);
         }
 
-        // Queues video link
+        // Queues video link TODO Separate out channel moving
         if (Pattern.matches("^(?i)mplay (.+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
@@ -44,10 +43,9 @@ public class AudioEvent extends ListenerAdapter {
                 if (AudioTool.connect(gmre) == -1) {
                     msgOut = "User is not in a voice channel";
                 } else {
-                    // Queue song
-                    AudioTool.queue(ytlink, gmre);
-                    String videoID = RegexTool.getGroups("=([\\w-]+)$", ytlink).get(0);
-                    msgOut = "Queued: " + YTTool.getTitleByID(videoID);
+                    // Queue song TODO check if can get title of queued track
+                    String title = AudioTool.queue(ytlink, gmre);
+                    msgOut = "Queued: " + title;
                 }
                 msgSet = true;
             }
@@ -74,14 +72,14 @@ public class AudioEvent extends ListenerAdapter {
                 for (int i = 0; i < searchResult.size(); i++) {
                     embedBody += (i + 1) + " - " + searchResult.get(i).get(0) + "\n";
                 }
-                eb.addField("Results:", embedBody, false);
+                eb.addField("Results:", StringTool.escapeHTML(embedBody), false);
                 eb.addField("", "Select a song using `" + ConfigTool.getBotPrefixByID(gmre.getGuild().getId()) + "mpick <1 - 5>`\n" +
                         "Waiting for reply from: " + gmre.getGuild().getMemberById(lastUser).getUser().getName(), false);
                 msgType = "embed";
                 msgSet = true;
             }
 
-        // Queues video chosen by user
+        // Queues video chosen by user TODO Separate out channel moving
         } else if (Pattern.matches("^(?i)mpick [1-5]$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
@@ -100,7 +98,9 @@ public class AudioEvent extends ListenerAdapter {
                         msgOut = "Queued: " + searchResult.get(Integer.parseInt(number) - 1).get(0);
                         AudioTool.queue(videoID, gmre);
 
+                        // unset waiting for response
                         waitingForResponse = false;
+                        lastUser = "";
                     }
                     msgSet = true;
                 }
@@ -115,7 +115,7 @@ public class AudioEvent extends ListenerAdapter {
                     String status;
                     if ((status = AudioTool.getStatusString(gmre)) != null) {
                         eb.setTitle("Currently Playing");
-                        eb.addField(status.split("n")[0], status.split("n")[1], false);
+                        eb.addField(StringTool.escapeHTML(status.split("\n")[0]), status.split("\n")[1], false);
                         msgType = "embed";
                     } else {
                         msgOut = "Not currently playing";
@@ -137,7 +137,7 @@ public class AudioEvent extends ListenerAdapter {
                 if (queue == null) {
                     msgOut = "Bot not in voice channel";
                 } else {
-                    eb.addField("", queue, false);
+                    eb.addField("", StringTool.escapeHTML(queue), false);
                     msgType = "embed";
                 }
                 msgSet = true;
@@ -147,14 +147,18 @@ public class AudioEvent extends ListenerAdapter {
         } else if (Pattern.matches("^(?i)mskip$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
-                // Skips current song
-                int result = AudioTool.skip(gmre);
-                if (result == 1) {
-                    msgOut = "Skipping current song";
-                } else if (result == -2) {
-                    msgOut = "Not playing any music";
-                } else if (result == -1) {
-                    msgOut = "Bot not connected";
+                if (AudioTool.inSameChannel(gmre)) {
+                    // Skips current song
+                    int result = AudioTool.skip(gmre);
+                    if (result == 1) {
+                        msgOut = "Skipping current song";
+                    } else if (result == -2) {
+                        msgOut = "Not playing any music";
+                    } else if (result == -1) {
+                        msgOut = "Bot not connected";
+                    }
+                } else {
+                    msgOut = "User is not connected to the same channel as bot";
                 }
                 msgSet = true;
             }
@@ -163,58 +167,102 @@ public class AudioEvent extends ListenerAdapter {
         } else if (Pattern.matches("^(?i)mskipto ([\\d]+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
-                // get argument
-                int ind = Integer.parseInt(RegexTool.getGroups("^(?i)mskipto ([\\d]+)$", cmdString).get(0));
+                if (AudioTool.inSameChannel(gmre)) {
+                    // get argument
+                    int ind = Integer.parseInt(RegexTool.getGroups("^(?i)mskipto ([\\d]+)$", cmdString).get(0));
 
-                // check num skips is less than songs remaining
-                if (ind <= AudioTool.getServerTS(gmre.getGuild().getId()).getQueue().size()) {
-                    // Skips to song
-                    int result = AudioTool.skipN(gmre, ind);
+                    // check num skips is less than songs remaining
+                    if (ind <= AudioTool.getServerTS(gmre.getGuild().getId()).getQueue().size()) {
+                        // Skips to song
+                        int result = AudioTool.skipN(gmre, ind);
+                        if (result == 1) {
+                            msgOut = "Skipping to ALAN PLEASE IMPLEMENT";
+                        } else if (result == -2) {
+                            msgOut = "Not playing any music";
+                        } else if (result == -1) {
+                            msgOut = "Bot not connected";
+                        }
+                    } else {
+                        msgOut = "There aren't that many songs in queue";
+                    }
+                } else {
+                    msgOut = "User is not connected to the same channel as bot";
+                }
+                msgSet = true;
+            }
+
+        // Pauses currently playing song
+        } else if (Pattern.matches("^(?i)mpause$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                if (AudioTool.inSameChannel(gmre)) {
+                    int result = AudioTool.pausePlayback(gmre);
                     if (result == 1) {
-                        msgOut = "Skipping to ALAN PLEASE IMPLEMENT";
+                        msgOut = "Paused";
+                    } else if (result == -3) {
+                        msgOut = "Bot already paused";
                     } else if (result == -2) {
-                        msgOut = "Not playing any music";
+                        msgOut = "Bot not playing";
                     } else if (result == -1) {
                         msgOut = "Bot not connected";
                     }
                 } else {
-                    msgOut = "There aren't that many songs in queue";
+                    msgOut = "User not in the same channel as bot";
                 }
                 msgSet = true;
             }
 
-        // Pauses currently playing song TODO
-        } else if (Pattern.matches("^(?i)mpause$", cmdString) &&
-                (isCmdChannel(gmre) || hasPrivs(gmre))) {
-            {
-                // Disconnects from the channel
-                int result = AudioTool.pausePlayback(gmre);
-                if (result == 1) {
-                    msgOut = "Paused";
-                } else if (result == -3) {
-                    msgOut = "Bot already paused";
-                } else if (result == -2) {
-                    msgOut = "Bot not playing";
-                } else if (result == -1) {
-                    msgOut = "Bot not connected";
-                }
-                msgSet = true;
-            }
-
-        // Resumes currently playing song TODO
+        // Resumes currently playing song
         } else if (Pattern.matches("^(?i)mresume$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
-                // Disconnects from the channel
-                int result = AudioTool.resumePlayback(gmre);
-                if (result == 1) {
-                    msgOut = "Resumed";
-                } else if (result == -3) {
-                    msgOut = "Bot already playing";
-                } else if (result == -2) {
-                    msgOut = "Bot not playing";
-                } else if (result == -1) {
-                    msgOut = "Bot not connected";
+                if (AudioTool.inSameChannel(gmre)) {
+                    int result = AudioTool.resumePlayback(gmre);
+                    if (result == 1) {
+                        msgOut = "Resumed";
+                    } else if (result == -3) {
+                        msgOut = "Bot already playing";
+                    } else if (result == -2) {
+                        msgOut = "Bot not playing";
+                    } else if (result == -1) {
+                        msgOut = "Bot not connected";
+                    }
+                } else {
+                    msgOut = "User not in the same channel as bot";
+                }
+
+                msgSet = true;
+            }
+
+        // Clears the ends current song and clears the queue
+        } else if (Pattern.matches("^(?i)mclear$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                if (AudioTool.inSameChannel(gmre)) {
+
+                    // Skips current song
+                    int result = AudioTool.clear(gmre);
+                    if (result == 1) {
+                        msgOut = "Skipped current music and cleared queue";
+                    } else if (result == -1) {
+                        msgOut = "Bot not connected";
+                    }
+                } else {
+                    msgOut = "User is not connected to the same channel as bot";
+                }
+                msgSet = true;
+            }
+
+        // Moves bot to user's channel
+        } else if (Pattern.matches("^(?i)mmove$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                // Moves bot to user's channel
+                if (AudioTool.connect(gmre) == -1) {
+                    msgOut = "User is not in a voice channel";
+                } else {
+                    // Queue song TODO check if can get title of queued track
+                    msgOut = "Moved channel";
                 }
                 msgSet = true;
             }
@@ -233,7 +281,7 @@ public class AudioEvent extends ListenerAdapter {
                 gmre.getChannel().sendMessage(eb.build()).queue();
                 eb.clear();
             } else {
-                gmre.getChannel().sendMessage(msgOut).queue();
+                gmre.getChannel().sendMessage(StringTool.escapeHTML(msgOut)).queue();
             }
         }
     }

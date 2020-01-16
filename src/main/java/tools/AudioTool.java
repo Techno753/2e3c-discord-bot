@@ -76,13 +76,15 @@ public final class AudioTool {
         System.out.println("Moving channels...");
         AudioManager am = gmre.getGuild().getAudioManager();
         VoiceChannel vc = gmre.getMember().getVoiceState().getChannel();
+        getServerAP(gmre.getGuild().getId()).setPaused(true);
         am.closeAudioConnection();
         try {
-            TimeUnit.SECONDS.sleep(3);
+            TimeUnit.SECONDS.sleep(2);
         } catch (Exception e) {
             e.printStackTrace();
         }
         am.openAudioConnection(vc);
+        getServerAP(gmre.getGuild().getId()).setPaused(false);
 
         System.out.println(connections);
     }
@@ -107,12 +109,108 @@ public final class AudioTool {
     }
 
     // Playback methods
-    public static void queue(String s, GuildMessageReceivedEvent gmre) {
+    // Queues song
+    public static String queue(String s, GuildMessageReceivedEvent gmre) {
         // Get serverID
         String serverID = gmre.getGuild().getId();
 
-        // Play song
-        getServerAPM(serverID).loadItem(s, AudioTool.getServerALRH(serverID));
+        // Queue song
+        try {
+            getServerAPM(serverID).loadItem(s, AudioTool.getServerALRH(serverID)).get();
+            return getServerTS(gmre.getGuild().getId()).getLastQueuedTitle();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static int pausePlayback(GuildMessageReceivedEvent gmre) {
+        String serverID = gmre.getGuild().getId();
+
+        if (exists(serverID)) {
+            AudioPlayer ap = getServerAP(serverID);
+            if (ap.getPlayingTrack() != null) {
+                if (!ap.isPaused()) {
+                    ap.setPaused(true);
+                    return 1;   // paused
+                }
+                return -3; // already paused
+            }
+            return -2; // not playing
+        }
+        return -1; // not connected
+    }
+
+    public static int resumePlayback(GuildMessageReceivedEvent gmre) {
+        String serverID = gmre.getGuild().getId();
+        if (exists(serverID)) {
+            AudioPlayer ap = getServerAP(serverID);
+            if (ap.getPlayingTrack() != null) {
+                if (ap.isPaused()) {
+                    ap.setPaused(false);
+                    return 1;   // resumed
+                }
+                return -3; // already playing
+            }
+            return -2; // not playing
+        }
+        return -1; // not connected
+    }
+
+    public static int skip(GuildMessageReceivedEvent gmre) {
+        AudioPlayer ap;
+        TrackScheduler ts;
+        String serverID = gmre.getGuild().getId();
+
+        // check connected
+        if (exists(serverID)) {
+            // check if playing
+            if ((ap = getServerAP(serverID)).getPlayingTrack() != null) {
+                    // stop current and play next TODO
+                    ap.stopTrack();
+                    ts = getServerTS(serverID);
+                    ts.nextTrack();
+                    return 1;
+            }
+            return -2; // not playing
+        }
+        return -1; // not connected
+    }
+
+    public static int skipN(GuildMessageReceivedEvent gmre, int n) {
+        AudioPlayer ap;
+        TrackScheduler ts;
+        String serverID = gmre.getGuild().getId();
+
+        // check connected
+        if (exists(serverID)) {
+            // check if playing
+            if ((ap = getServerAP(serverID)).getPlayingTrack() != null) {
+                // stop current and play next TODO
+                ap.stopTrack();
+                ts = getServerTS(serverID);
+                for (int i = 0; i < (n-1); i++) {
+                    ts.skip();
+                }
+                ts.nextTrack();
+                return 1;
+            }
+            return -2; // not playing
+        }
+        return -1; // not connected
+    }
+
+    public static int clear(GuildMessageReceivedEvent gmre) {
+        String serverID = gmre.getGuild().getId();
+
+        // check connected
+        if (exists(serverID)) {
+                // stop current and play next TODO
+                getServerTS(serverID).clear();
+                return 1;
+        }
+        return -1; // not connected
     }
 
     public static String getStatusString(GuildMessageReceivedEvent gmre) {
@@ -120,8 +218,10 @@ public final class AudioTool {
         AudioTrack at;
 
         if ((at = ap.getPlayingTrack()) != null) {
+
             // Get parts
-            String title = YTTool.getTitleByID(at.getIdentifier());
+            String title = at.getInfo().title;
+//            String title = YTTool.getTitleByID(at.getIdentifier());
 
             // Get ms
             String posString = String.valueOf(at.getPosition());
@@ -151,6 +251,13 @@ public final class AudioTool {
             float progFloat = (float) posInt/durInt;
             int progInt = (int) (progFloat / 0.1);
 
+            String status;
+            if (AudioTool.getServerAP(gmre.getGuild().getId()).isPaused()) {
+                status = ":pause_button:";
+            } else {
+                status = ":arrow_forward:";
+            }
+
             String progString = "";
             for (int i = 0; i < progInt; i++) {
                 progString += "<:pf:667220899702898698>";
@@ -162,7 +269,7 @@ public final class AudioTool {
 
             // Form string
             return  title + "\n" +
-                    posMinStr + ":" + posSecStr + "/" + durMinStr + ":" + durSecStr + " | " + progString;
+                    status + " | " + posMinStr + ":" + posSecStr + "/" + durMinStr + ":" + durSecStr + " | " + progString;
 
         } else {
             return null;
@@ -181,7 +288,7 @@ public final class AudioTool {
             } else {
                 int count = 1;
                 for (AudioTrack at : q) {
-                    out += count + " - " + YTTool.getTitleByID(at.getIdentifier()) + "\n";
+                    out += count + " - " + at.getInfo().title + "\n";
                     count++;
                 }
                 return out;
@@ -191,83 +298,11 @@ public final class AudioTool {
         return null;
     }
 
-    public static int pausePlayback(GuildMessageReceivedEvent gmre) {
-        if (exists(gmre.getGuild().getId())) {
-            AudioPlayer ap = getServerAP(gmre.getGuild().getId());
-            if (ap.getPlayingTrack() != null) {
-                if (!ap.isPaused()) {
-                    ap.setPaused(true);
-                    return 1;   // paused
-                }
-                return -3; // already paused
-            }
-            return -2; // not playing
-        }
-        return -1; // not connected
-    }
+    public static boolean inSameChannel(GuildMessageReceivedEvent gmre) {
+        String userChannel = gmre.getMember().getVoiceState().getChannel().getId();
+        String botChannel = gmre.getGuild().getAudioManager().getConnectedChannel().getId();
 
-    public static int resumePlayback(GuildMessageReceivedEvent gmre) {
-        if (exists(gmre.getGuild().getId())) {
-            AudioPlayer ap = getServerAP(gmre.getGuild().getId());
-            if (ap.getPlayingTrack() != null) {
-                if (ap.isPaused()) {
-                    ap.setPaused(false);
-                    return 1;   // resumed
-                }
-                return -3; // already playing
-            }
-            return -2; // not playing
-        }
-        return -1; // not connected
-    }
-
-    public static int skip(GuildMessageReceivedEvent gmre) {
-        AudioPlayer ap;
-        TrackScheduler ts;
-
-        // check connected
-        if (exists(gmre.getGuild().getId())) {
-            // check if playing
-            if ((ap = getServerAP(gmre.getGuild().getId())).getPlayingTrack() != null) {
-                // check trackscheduler has another song || User may want to skip last song so allow skipping without any new ones to load
-//                if ((ts = getServerTS(gmre.getGuild().getId())).getQueue().size() > 0) {
-                    // stop current and play next TODO
-                    ap.stopTrack();
-                    ts = getServerTS(gmre.getGuild().getId());
-                    ts.nextTrack();
-                    return 1;
-//                }
-//                return -3; // no more songs in queue
-            }
-            return -2; // not playing
-        }
-        return -1; // not connected
-    }
-
-    public static int skipN(GuildMessageReceivedEvent gmre, int n) {
-        AudioPlayer ap;
-        TrackScheduler ts;
-
-        // check connected
-        if (exists(gmre.getGuild().getId())) {
-            // check if playing
-            if ((ap = getServerAP(gmre.getGuild().getId())).getPlayingTrack() != null) {
-                // check trackscheduler has another/enough song
-//                if ((ts = getServerTS(gmre.getGuild().getId())).getQueue().size() > 0) {
-                // stop current and play next TODO
-                ap.stopTrack();
-                ts = getServerTS(gmre.getGuild().getId());
-                for (int i = 0; i < (n-1); i++) {
-                    ts.skip();
-                }
-                ts.nextTrack();
-                return 1;
-//                }
-//                return -3; // no more songs in queue
-            }
-            return -2; // not playing
-        }
-        return -1; // not connected
+        return userChannel.equals(botChannel);
     }
 
     // Connection property getters
