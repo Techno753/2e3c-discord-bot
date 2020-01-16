@@ -1,20 +1,12 @@
 package events;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.managers.AudioManager;
 import tools.*;
-import tools.audioLoader.MyAudioLoadResultHandler;
-import tools.audioLoader.TrackScheduler;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static tools.VerifyMsgTool.*;
@@ -40,7 +32,7 @@ public class AudioEvent extends ListenerAdapter {
             cmdString = msgIn.substring(1);
         }
 
-        // Plays video link
+        // Queues video link
         if (Pattern.matches("^(?i)mplay (.+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
@@ -54,19 +46,13 @@ public class AudioEvent extends ListenerAdapter {
                 } else {
                     // Queue song
                     AudioTool.queue(ytlink, gmre);
-                    msgOut = "Queued: " + YTTool.getTitleByID(ytlink);
+                    String videoID = RegexTool.getGroups("=([\\w-]+)$", ytlink).get(0);
+                    msgOut = "Queued: " + YTTool.getTitleByID(videoID);
                 }
                 msgSet = true;
             }
 
-        // Disconnects bot from channel
-        } else if (Pattern.matches("^(?i)mdc$", cmdString) &&
-                (isCmdChannel(gmre) || hasPrivs(gmre))) {
-            {
-                // Disconnects from the channel
-                AudioTool.disconnectFromVC(gmre);
-            }
-
+        // Searches YouTube
         } else if (Pattern.matches("^(?i)msearch (.+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
@@ -108,7 +94,7 @@ public class AudioEvent extends ListenerAdapter {
 
                         // Get video to play
                         String number = RegexTool.getGroups("^(?i)mpick ([1-9]|10)$", cmdString).get(0);
-                        String videoID = searchResult.get(Integer.parseInt(number)).get(1);
+                        String videoID = searchResult.get(Integer.parseInt(number) - 1).get(1);
 
                         msgOut = "Queued: " + searchResult.get(Integer.parseInt(number) - 1).get(0);
                         AudioTool.queue(videoID, gmre);
@@ -118,8 +104,57 @@ public class AudioEvent extends ListenerAdapter {
                     msgSet = true;
                 }
             }
-        }
 
+        // Gets current playing and progress bar TODO
+        } else if (Pattern.matches("^(?i)mnp$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                if (AudioTool.exists(gmre.getGuild().getId())) {
+                    // Disconnects from the channel
+                    String status;
+                    if ((status = AudioTool.getStatusString(gmre)) != null) {
+                        msgOut = status;
+                    } else {
+                        msgOut = "Not currently playing";
+                    }
+                } else {
+                    msgOut = "Bot not connected";
+                }
+                msgSet = true;
+            }
+
+        // Gets queue TODO
+        } else if (Pattern.matches("^(?i)mdc$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                // Disconnects from the channel
+                AudioTool.disconnectFromVC(gmre);
+            }
+
+        // Skips current song TODO
+        } else if (Pattern.matches("^(?i)mdc$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                // Disconnects from the channel
+                AudioTool.disconnectFromVC(gmre);
+            }
+
+        // Skips to given song index TODO
+        } else if (Pattern.matches("^(?i)mdc$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                // Disconnects from the channel
+                AudioTool.disconnectFromVC(gmre);
+            }
+
+        // Disconnects bot from channel
+        } else if (Pattern.matches("^(?i)mdc$", cmdString) &&
+            (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                // Disconnects from the channel
+                AudioTool.disconnectFromVC(gmre);
+            }
+        }
         // Displays message
         if (msgSet) {
             if (msgType.equals("embed")) {
@@ -130,4 +165,6 @@ public class AudioEvent extends ListenerAdapter {
             }
         }
     }
+
+    //public void (Voi)
 }

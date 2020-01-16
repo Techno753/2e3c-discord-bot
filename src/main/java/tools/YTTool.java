@@ -106,8 +106,7 @@ public class YTTool {
         return null;
     }
 
-    public static String getTitleByID(String videoURL) {
-        String videoID = RegexTool.getGroups("=(\\w+)$", videoURL).get(0);
+    public static String getTitleByID(String videoID) {
 
         try {
             YouTube.Videos.List request = yt.videos().list("snippet");

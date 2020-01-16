@@ -5,11 +5,12 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
-import tools.audioLoader.MyAudioLoadResultHandler;
-import tools.audioLoader.TrackScheduler;
+import tools.audio.MyAudioLoadResultHandler;
+import tools.audio.TrackScheduler;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 public final class AudioTool {
     private static ArrayList<ConnectionData> connections = new ArrayList<>();
 
+    // Channel methods
     public static int connectToVC(GuildMessageReceivedEvent gmre) {
         AudioManager am;
 
@@ -42,7 +44,7 @@ public final class AudioTool {
         player.addListener(ts);
         MyAudioLoadResultHandler audioLoader = new MyAudioLoadResultHandler(ts);
 
-        connections.add(new ConnectionData(gmre.getGuild().getId(), apm, audioLoader, ts));
+        connections.add(new ConnectionData(gmre.getGuild().getId(), apm, player, audioLoader, ts));
         return 1;
     }
 
@@ -67,14 +69,6 @@ public final class AudioTool {
             AudioTool.updateChannel(gmre);
         }
         return 1;
-    }
-
-    public static void queue(String s, GuildMessageReceivedEvent gmre) {
-        // Get serverID
-        String serverID = gmre.getGuild().getId();
-
-        // Play song
-        getServerAPM(serverID).loadItem(s, AudioTool.getServerALRH(serverID));
     }
 
     public static void updateChannel(GuildMessageReceivedEvent gmre) {
@@ -111,10 +105,85 @@ public final class AudioTool {
         gmre.getGuild().getAudioManager().closeAudioConnection();
     }
 
+    // Playback methods
+    public static void queue(String s, GuildMessageReceivedEvent gmre) {
+        // Get serverID
+        String serverID = gmre.getGuild().getId();
+
+        // Play song
+        getServerAPM(serverID).loadItem(s, AudioTool.getServerALRH(serverID));
+    }
+
+    public static ArrayList<String> getStatus(GuildMessageReceivedEvent gmre) {
+        AudioPlayer ap = getServerAP(gmre.getGuild().getId());
+        AudioTrack at;
+
+        if ((at = ap.getPlayingTrack()) != null) {
+            ArrayList<String> out = new ArrayList<>();
+            out.add(at.getIdentifier());
+            out.add(String.valueOf(at.getPosition()));
+            out.add(String.valueOf(at.getDuration()));
+            return out;
+        } else {
+            return null;
+        }
+    }
+
+    public static String getStatusString(GuildMessageReceivedEvent gmre) {
+        AudioPlayer ap = getServerAP(gmre.getGuild().getId());
+        AudioTrack at;
+
+        if ((at = ap.getPlayingTrack()) != null) {
+            // Get parts
+            String title = YTTool.getTitleByID(at.getIdentifier());
+
+            // Get ms
+            String posString = String.valueOf(at.getPosition());
+            // Convert to s
+            posString = posString.substring(0, posString.length()-3);
+            // Conver to int
+            int posInt = Integer.parseInt(posString);
+            // get mins and secs as str
+            String posMinStr = String.valueOf(posInt/60);
+            String posSecStr = String.valueOf(posInt%60);
+            // Add 0 to front of s if single digit
+            if (posSecStr.length() == 1) {
+                posSecStr = "0" + posSecStr;
+            }
+
+            // Do same to duration
+            String durString = String.valueOf(at.getDuration());
+            durString = durString.substring(0, durString.length()-3);
+            int durInt = Integer.parseInt(durString);
+            String durMinStr = String.valueOf(durInt/60);
+            String durSecStr = String.valueOf(durInt%60);
+            if (durSecStr.length() == 1) {
+                durSecStr = "0" + durSecStr;
+            }
+
+            // Form string
+            return "Currently Playing: " + title + "\n" +
+                    posMinStr + ":" + posSecStr + "/" + durMinStr + ":" + durSecStr;
+
+        } else {
+            return null;
+        }
+    }
+
+    // Connection property getters
     public static AudioPlayerManager getServerAPM(String serverID) {
         for (ConnectionData server : connections) {
             if (server.getServerID().equals(serverID)) {
                 return server.getAPM();
+            }
+        }
+        return null;
+    }
+
+    public static AudioPlayer getServerAP(String serverID) {
+        for (ConnectionData server : connections) {
+            if (server.getServerID().equals(serverID)) {
+                return server.getAP();
             }
         }
         return null;
@@ -138,6 +207,7 @@ public final class AudioTool {
         return null;
     }
 
+
     public static boolean exists(String serverID) {
         for (ConnectionData server : connections) {
             if (server.getServerID().equals(serverID)) {
@@ -151,12 +221,14 @@ public final class AudioTool {
 class ConnectionData {
     String serverID;
     AudioPlayerManager apm;
+    AudioPlayer ap;
     AudioLoadResultHandler alrh;
     TrackScheduler ts;
 
-    public ConnectionData(String serverID, AudioPlayerManager apm, AudioLoadResultHandler alrh, TrackScheduler ts) {
+    public ConnectionData(String serverID, AudioPlayerManager apm, AudioPlayer ap, AudioLoadResultHandler alrh, TrackScheduler ts) {
         this.serverID = serverID;
         this.apm = apm;
+        this.ap = ap;
         this.alrh = alrh;
         this.ts = ts;
     }
@@ -167,6 +239,10 @@ class ConnectionData {
 
     public AudioPlayerManager getAPM() {
         return apm;
+    }
+
+    public AudioPlayer getAP() {
+        return ap;
     }
 
     public AudioLoadResultHandler getALRH() {
