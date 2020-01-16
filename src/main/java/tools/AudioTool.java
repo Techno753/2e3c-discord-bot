@@ -17,9 +17,13 @@ import java.util.concurrent.TimeUnit;
 public final class AudioTool {
     private static ArrayList<ConnectionData> connections = new ArrayList<>();
 
-    public static void connectToVC(GuildMessageReceivedEvent gmre) {
+    public static int connectToVC(GuildMessageReceivedEvent gmre) {
+        AudioManager am;
+
         // Connect to channel
-        AudioManager am = gmre.getGuild().getAudioManager();
+        if ((am = gmre.getGuild().getAudioManager()) == null) {
+            return -1; // User is not in a vc
+        }
         VoiceChannel vc = gmre.getMember().getVoiceState().getChannel();
         am.openAudioConnection(vc);
 
@@ -39,9 +43,33 @@ public final class AudioTool {
         MyAudioLoadResultHandler audioLoader = new MyAudioLoadResultHandler(ts);
 
         connections.add(new ConnectionData(gmre.getGuild().getId(), apm, audioLoader, ts));
+        return 1;
     }
 
-    public static void play(String s, GuildMessageReceivedEvent gmre) {
+    public static int connect(GuildMessageReceivedEvent gmre) {
+        // Get serverID
+        String serverID = gmre.getGuild().getId();
+
+        // if user not in vc then reply message
+        if (gmre.getMember().getVoiceState().getChannel() == null) {
+            //msgOut = "User is not in a voice channel";
+            System.out.println("this");
+            return -1;
+
+            // if bot not in any channel then connect to user's channel
+        } else if (!AudioTool.exists(serverID)) {
+            System.out.println("that");
+            AudioTool.connectToVC(gmre);
+            // if bot in incorrect channel then move
+        } else if (!gmre.getGuild().getAudioManager().getConnectedChannel().getId()
+                .equals(gmre.getMember().getVoiceState().getChannel().getId())) {
+            gmre.getGuild().getAudioManager().getConnectedChannel().getId();
+            AudioTool.updateChannel(gmre);
+        }
+        return 1;
+    }
+
+    public static void queue(String s, GuildMessageReceivedEvent gmre) {
         // Get serverID
         String serverID = gmre.getGuild().getId();
 
@@ -50,7 +78,7 @@ public final class AudioTool {
     }
 
     public static void updateChannel(GuildMessageReceivedEvent gmre) {
-        System.out.println("this function is being called");
+        System.out.println("Moving channels...");
         AudioManager am = gmre.getGuild().getAudioManager();
         VoiceChannel vc = gmre.getMember().getVoiceState().getChannel();
         am.closeAudioConnection();
@@ -69,6 +97,9 @@ public final class AudioTool {
 
         for (ConnectionData cd : connections) {
             if (cd.getServerID().equals(gmre.getGuild().getId())) {
+                // clear tracks
+                cd.getTS().clear();
+                // set ConnectionData to remove
                 toRemove = cd;
             }
         }
@@ -76,6 +107,7 @@ public final class AudioTool {
             connections.remove(toRemove);
         }
 
+        // Close channel connection
         gmre.getGuild().getAudioManager().closeAudioConnection();
     }
 

@@ -18,7 +18,7 @@ public final class RegexTool {
         Matcher m = pat.matcher(in);
 
         // Get groups
-        if (m.matches()) {
+        if (m.find()) {
             for (int i = 0; i < m.groupCount(); i++) {
                 out.add(m.group(i+1));
             }

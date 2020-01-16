@@ -10,6 +10,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.YouTubeRequestInitializer;
 import com.google.api.services.youtube.model.SearchListResponse;
+import com.google.api.services.youtube.model.VideoListResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -58,19 +59,16 @@ public class YTTool {
                     .setType("video")
                     .execute();
 
-            ArrayList<ArrayList<String>> filtered = filterJSON(response.toString());
+            ArrayList<ArrayList<String>> filtered = filterSearchJSON(response.toString());
 
-            for (int i = 0; i < filtered.size(); i++) {
-                System.out.println((i+1) + " - " + filtered.get(i).get(0));
-            }
+            return filtered;
 
-            return filterJSON(response.toString());
         } catch (Exception e) {
             return null;
         }
     }
 
-    public static ArrayList<ArrayList<String>> filterJSON(String s) {
+    public static ArrayList<ArrayList<String>> filterSearchJSON(String s) {
         try {
             ArrayList<ArrayList<String>> out = new ArrayList<>();
             String title;
@@ -106,5 +104,30 @@ public class YTTool {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String getTitleByID(String videoURL) {
+        String videoID = RegexTool.getGroups("=(\\w+)$", videoURL).get(0);
+
+        try {
+            YouTube.Videos.List request = yt.videos().list("snippet");
+            VideoListResponse response = request.setId(videoID).execute();
+
+            String responseString = response.toString();
+
+            // Get JSON Object
+            JSONParser parser = new JSONParser();
+            JSONObject jo = (JSONObject) parser.parse(responseString);
+
+            JSONArray ja = (JSONArray) jo.get("items");
+            JSONObject vid = (JSONObject) ja.get(0);
+            JSONObject snip = (JSONObject) vid.get("snippet");
+
+            return snip.get("title").toString();
+
+        } catch (Exception e) {
+            System.out.println("Error fetching Video data");
+        }
+        return "ERROR";
     }
 }

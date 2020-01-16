@@ -37,43 +37,37 @@ public class AudioEvent extends ListenerAdapter {
         }
 
         // Plays video link
-        if (Pattern.matches("^(?i)testaudio (.+)$", cmdString) &&
+        if (Pattern.matches("^(?i)mplay (.+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
-
-            String ytlink = RegexTool.getGroups("^(?is)testaudio (.+)$", cmdString).get(0);
             {
-                // Get serverID
-                String serverID = gmre.getGuild().getId();
+                // get link
+                String ytlink = RegexTool.getGroups("^(?is)mplay (.+)$", cmdString).get(0);
+                System.out.println("Playing: " + ytlink);
 
-                // if not in server connect
-                if (!AudioTool.exists(serverID)) {
-                    AudioTool.connectToVC(gmre);
-
-                // if in server not correct channel then update channel
-                } else if (!gmre.getGuild().getAudioManager().getConnectedChannel().getId()
-                        .equals(gmre.getMember().getVoiceState().getChannel().getId())) {
-                    gmre.getGuild().getAudioManager().getConnectedChannel().getId();
-                    AudioTool.updateChannel(gmre);
+                // Connect to correct channel
+                if (AudioTool.connect(gmre) == -1) {
+                    msgOut = "User is not in a voice channel";
+                } else {
+                    // Queue song
+                    AudioTool.queue(ytlink, gmre);
+                    msgOut = "Queued: " + YTTool.getTitleByID(ytlink);
                 }
-                // if in correct channel do nothing
-
-                // Play song
-                AudioTool.getServerAPM(serverID).loadItem(ytlink, AudioTool.getServerALRH(serverID));
+                msgSet = true;
             }
 
         // Disconnects bot from channel
-        } else if (Pattern.matches("^(?i)disconnect$", cmdString) &&
+        } else if (Pattern.matches("^(?i)mdc$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                // Disconnects from the channel
+                AudioTool.disconnectFromVC(gmre);
+            }
 
-            // Disconnects from the channel
-            AudioTool.disconnectFromVC(gmre);
-        } else if (Pattern.matches("^(?i)testsearch (.+)$", cmdString) &&
+        } else if (Pattern.matches("^(?i)msearch (.+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
-
-                System.out.println("testing search");
-
+            {
                 // Get search term
-                ArrayList<String> terms = RegexTool.getGroups("^(?is)testsearch (.+)$", cmdString);
+                ArrayList<String> terms = RegexTool.getGroups("^(?is)msearch (.+)$", cmdString);
                 String query = terms.get(0);
 
                 // Display search results
@@ -83,40 +77,43 @@ public class AudioEvent extends ListenerAdapter {
                 waitingForResponse = true;
                 lastUser = gmre.getAuthor().getId();
 
-        } else if (Pattern.matches("^(?i)pick [1-9]|10$", cmdString) &&
-                (isCmdChannel(gmre) || hasPrivs(gmre))) {
-
-            // If waiting for response from search
-            if (waitingForResponse && gmre.getAuthor().getId().equals(lastUser)) {
-
-                // Connect to VC and set up player if not in (correct) channel
-                // Get serverID
-                String serverID = gmre.getGuild().getId();
-
-                // if not in server connect
-                if (!AudioTool.exists(serverID)) {
-                    AudioTool.connectToVC(gmre);
-
-                // if in server not correct channel then update channel
-                } else if (!gmre.getGuild().getAudioManager().getConnectedChannel().getId()
-                        .equals(gmre.getMember().getVoiceState().getChannel().getId())) {
-                    gmre.getGuild().getAudioManager().getConnectedChannel().getId();
-                    AudioTool.updateChannel(gmre);
+                msgOut = "Search results for: " + query + "\n";
+                for (int i = 0; i < searchResult.size(); i++) {
+                    msgOut += (i + 1) + " - " + searchResult.get(i).get(0) + "\n";
                 }
-                // if in correct channel do nothing
-
-                // Play song
-                // AudioTool.getServerAPM(serverID).loadItem(ytlink, AudioTool.getServerALRH(serverID));
-
-                // Get number
-                ArrayList<String> terms = RegexTool.getGroups("^(?i)pick ([1-9]|10)$", cmdString);
-                String number = terms.get(0);
-                String videoID = searchResult.get(Integer.parseInt(number)).get(1);
-
-                AudioTool.play(videoID, gmre);
-
-                waitingForResponse = false;
+                msgOut += "Waiting for reply from: " + gmre.getGuild().getMemberById(lastUser).getUser().getName();
+                msgSet = true;
             }
+
+        // Queues video chosen by user
+        } else if (Pattern.matches("^(?i)mpick [1-9]|10$", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                // If waiting for response from search
+                if (waitingForResponse && gmre.getAuthor().getId().equals(lastUser)) {
+
+                    // Connect to correct channel
+                    if (AudioTool.connect(gmre) == -1) {
+                        msgOut = "User is not in a voice channel";
+                    } else {
+
+                        // Get video to play
+                        String number = RegexTool.getGroups("^(?i)mpick ([1-9]|10)$", cmdString).get(0);
+                        String videoID = searchResult.get(Integer.parseInt(number)).get(1);
+
+                        msgOut = "Queued: " + searchResult.get(Integer.parseInt(number) - 1).get(0);
+                        AudioTool.queue(videoID, gmre);
+
+                        waitingForResponse = false;
+                    }
+                    msgSet = true;
+                }
+            }
+        }
+
+        // Displays message
+        if (msgSet) {
+            gmre.getChannel().sendMessage(msgOut).queue();
         }
     }
 }
