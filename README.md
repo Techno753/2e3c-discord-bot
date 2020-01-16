@@ -8,16 +8,26 @@ Personal discord bot to practice Java and APIs
 4. Optionally, change the command prefix with `^prefix <prefix>`
 5. You're set!
 
-## Music
-[Commands](#music-commands-wip)
+## Music (WIP)
+[Commands](#music-commands-wip)  
 Music can be played by 2 methods.
 - With a YouTube Link: ```^mplay <YouTube Link>```
-- By searching and choosing:  ```^msearch <Search Term>``` then ```^mpick <1 - 10>```
+- By searching and choosing:  ```^msearch <Search Term>``` then ```^mpick <1 - 5>```
   
 When a YouTube video is queued, the bot will join the voice channel that the user is in.
 If the bot is in a different channel of the same server, the bot will move channels to follow the user. This currently maintains the queued videos.
 
 ```^mdc``` will disconnect the bot from its current voice channel and clear any queued videos.
+
+## Tags
+[Commands](#tag-commands)  
+Users can create custom image and text responses and use them in any server.
+- Text tag: ```^att <tag> <response>```
+- Image tag: ```^ait <tag>``` with an image upload
+
+Tags can be called by any user in any server containing the bot with ```^t <tag>```
+
+Tags can only be deleted by their creator with ```^rt```
 
 ## Commands
 
@@ -53,7 +63,7 @@ Command | Perms | Description | Example
 Command | Perms | Description | Example
 :--- | :--- | :--- | :---
 ^att \<tag\> \<reply\> | User | Creates a text tag. | ^att Marco Polo
-^aid \<tag\> | User | Creates an image tag. User needs to upload a single image with the message. | ^ait pepehands
+^ait \<tag\> | User | Creates an image tag. User needs to upload a single image with the message. | ^ait pepehands
 ^rt \<tag\> | User | Removes a tag if the user created the tag. | ^rt Marco
 ^t \<tag\> | User | Replies with an image or text depending on the tag called. | ^t pepehands
 
@@ -63,7 +73,16 @@ Command | Perms | Description | Example
 ^mplay \<YouTube Link\> | User | Connects to a channel and plays a YouTube video. | ^mplay https://www.youtube.com/watch?v=dQw4w9WgXcQ
 ^msearch \<Search Terms\> | User | Replies with the first 5 results of a YouTube Search. | ^msearch Rick Roll
 ^mpick \<1 - 5\> | User | Following a `^msearch` command, will play the chosen video. | ^mpick 3
-^mdc | User | Disconneccts the bot from the current voice channel
+^mpause | User | Pauses video if the bot is currently playing something. | 
+^mresume | User | Resumes video if the bot was paused. | 
+^mnp | User | Displays information on the currently playing video. | 
+^mq | User | Displays the currently queued video. | 
+^mskip | User | Skips the currently playing video. | 
+^mskipto \<n\> | User | Skips to the n-th video in queue. | ^skipto 3
+^mmove | User | Moves the bot to the user's voice channel | 
+^mclear | User | Stops the currently playing video and clears the queue | 
+^mdc | User | Disconnects the bot from the current voice channel | 
+
 
 
 #### Server Info Commands
@@ -80,8 +99,8 @@ Command | Perms | Description | Example
 ^prefix <\prefix\> | BA | Sets the command prefix for the server. | ^prefix ! 
 ^addba @user | BA | Adds a new bot admin for the server. The user to add must be @'d in the command. | ^addba @Tech
 ^remba @user | BA | Removes an existing bot admin for the server. The user to remove must be @'d in the command. | ^remba @Tech
-^addba #channel | BA | Adds an existing channel as a bot channel for the server. The channel must be #mentioned in the command. | ^addbc #bot-commands
-^remba #channel | BA | Removes an existing bot channel for the server. The channel must be #mentioned in the command. | ^rembc #bot-commands
+^addbc #channel | BA | Adds an existing channel as a bot channel for the server. The channel must be #mentioned in the command. | ^addbc #bot-commands
+^rembc #channel | BA | Removes an existing bot channel for the server. The channel must be #mentioned in the command. | ^rembc #bot-commands
 
 
 
