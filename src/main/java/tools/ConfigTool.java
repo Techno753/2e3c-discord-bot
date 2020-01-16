@@ -54,7 +54,7 @@ public final class ConfigTool {
             return 1;   // Config successfully parsed
 
         } catch (Exception e) {
-            System.out.println("Error parsing config file.");
+            System.out.println("Config file corrupted or not found.");
             return -2; // Error parsing config file
         }
     }

@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -19,6 +20,8 @@ import java.util.regex.Pattern;
 import static tools.VerifyMsgTool.*;
 
 public class AudioEvent extends ListenerAdapter {
+    EmbedBuilder eb = new EmbedBuilder();
+
     // Variables for searching for video
     boolean waitingForResponse = false;
     String lastUser = "";
@@ -30,6 +33,7 @@ public class AudioEvent extends ListenerAdapter {
         String msgIn = gmre.getMessage().getContentRaw();
         String cmdString = "";
         String msgOut = "";
+        String msgType = "";
         boolean msgSet = false;
 
         if (msgIn.length() > 1 && hasCorrectPrefix(gmre)) {
@@ -77,16 +81,21 @@ public class AudioEvent extends ListenerAdapter {
                 waitingForResponse = true;
                 lastUser = gmre.getAuthor().getId();
 
-                msgOut = "Search results for: " + query + "\n";
+                // Set embed
+                eb.setTitle("YouTube Search Results for \"" + query + "\"");
+                String embedBody = "";
                 for (int i = 0; i < searchResult.size(); i++) {
-                    msgOut += (i + 1) + " - " + searchResult.get(i).get(0) + "\n";
+                    embedBody += (i + 1) + " - " + searchResult.get(i).get(0) + "\n";
                 }
-                msgOut += "Waiting for reply from: " + gmre.getGuild().getMemberById(lastUser).getUser().getName();
+                eb.addField("Results:", embedBody, false);
+                eb.addField("", "Select a song using `" + ConfigTool.getBotPrefixByID(gmre.getGuild().getId()) + "mpick <1 - 5>`\n" +
+                        "Waiting for reply from: " + gmre.getGuild().getMemberById(lastUser).getUser().getName(), false);
+                msgType = "embed";
                 msgSet = true;
             }
 
         // Queues video chosen by user
-        } else if (Pattern.matches("^(?i)mpick [1-9]|10$", cmdString) &&
+        } else if (Pattern.matches("^(?i)mpick [1-5]$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
                 // If waiting for response from search
@@ -113,7 +122,12 @@ public class AudioEvent extends ListenerAdapter {
 
         // Displays message
         if (msgSet) {
-            gmre.getChannel().sendMessage(msgOut).queue();
+            if (msgType.equals("embed")) {
+                gmre.getChannel().sendMessage(eb.build()).queue();
+                eb.clear();
+            } else {
+                gmre.getChannel().sendMessage(msgOut).queue();
+            }
         }
     }
 }

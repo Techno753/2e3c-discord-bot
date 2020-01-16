@@ -54,7 +54,7 @@ public class YTTool {
             // Define and execute the API request
             YouTube.Search.List request = yt.search()
                     .list("snippet");
-            SearchListResponse response = request.setMaxResults(10L)
+            SearchListResponse response = request.setMaxResults(5L)
                     .setQ(query)
                     .setType("video")
                     .execute();

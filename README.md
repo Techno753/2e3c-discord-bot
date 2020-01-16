@@ -61,8 +61,8 @@ Command | Perms | Description | Example
 Command | Perms | Description | Example
 :--- | :--- | :--- | :---
 ^mplay \<YouTube Link\> | User | Connects to a channel and plays a YouTube video. | ^mplay https://www.youtube.com/watch?v=dQw4w9WgXcQ
-^msearch \<Search Terms\> | User | Replies with the first 10 results of a YouTube Search. | ^msearch Rick Roll
-^mpick \<1 - 10\> | User | Following a `^msearch` command, will play the chosen video. | ^mpick 3
+^msearch \<Search Terms\> | User | Replies with the first 5 results of a YouTube Search. | ^msearch Rick Roll
+^mpick \<1 - 5\> | User | Following a `^msearch` command, will play the chosen video. | ^mpick 3
 ^mdc | User | Disconneccts the bot from the current voice channel
 
 
