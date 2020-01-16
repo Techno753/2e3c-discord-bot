@@ -63,7 +63,13 @@ Command | Perms | Description | Example
 ^mplay \<YouTube Link\> | User | Connects to a channel and plays a YouTube video. | ^mplay https://www.youtube.com/watch?v=dQw4w9WgXcQ
 ^msearch \<Search Terms\> | User | Replies with the first 5 results of a YouTube Search. | ^msearch Rick Roll
 ^mpick \<1 - 5\> | User | Following a `^msearch` command, will play the chosen video. | ^mpick 3
-^mdc | User | Disconneccts the bot from the current voice channel
+^mpause | User | Pauses audio if the bot is currently playing something. | 
+^mresume | User | Resumes audio if the bot was paused. | 
+^skip | User | Skips the currently playing audio. | 
+^skipto \<n\> | User | Skips to the n-th audio in queue. | ^skipto 3
+^mnp | User | Displays information on the currently playing audio. | 
+^mq | User | Displays the currently queued audios. | 
+^mdc | User | Disconneccts the bot from the current voice channel | 
 
 
 #### Server Info Commands
