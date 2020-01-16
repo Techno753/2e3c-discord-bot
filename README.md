@@ -25,7 +25,7 @@ Users can create custom image and text responses and use them in any server.
 - Text tag: ```^att <tag> <response>```
 - Image tag: ```^ait <tag>``` with an image upload
 
-Tags can be called by any user in any server with ```^t <tag>```
+Tags can be called by any user in any server containing the bot with ```^t <tag>```
 
 Tags can only be deleted by their creator with ```^rt```
 
@@ -96,8 +96,8 @@ Command | Perms | Description | Example
 ^prefix <\prefix\> | BA | Sets the command prefix for the server. | ^prefix ! 
 ^addba @user | BA | Adds a new bot admin for the server. The user to add must be @'d in the command. | ^addba @Tech
 ^remba @user | BA | Removes an existing bot admin for the server. The user to remove must be @'d in the command. | ^remba @Tech
-^addba #channel | BA | Adds an existing channel as a bot channel for the server. The channel must be #mentioned in the command. | ^addbc #bot-commands
-^remba #channel | BA | Removes an existing bot channel for the server. The channel must be #mentioned in the command. | ^rembc #bot-commands
+^addbc #channel | BA | Adds an existing channel as a bot channel for the server. The channel must be #mentioned in the command. | ^addbc #bot-commands
+^rembc #channel | BA | Removes an existing bot channel for the server. The channel must be #mentioned in the command. | ^rembc #bot-commands
 
 
 
