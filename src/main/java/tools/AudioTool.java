@@ -56,12 +56,10 @@ public final class AudioTool {
         // if user not in vc then reply message
         if (gmre.getMember().getVoiceState().getChannel() == null) {
             //msgOut = "User is not in a voice channel";
-            System.out.println("this");
             return -1;
 
             // if bot not in any channel then connect to user's channel
         } else if (!AudioTool.exists(serverID)) {
-            System.out.println("that");
             AudioTool.connectToVC(gmre);
             // if bot in incorrect channel then move
         } else if (!gmre.getGuild().getAudioManager().getConnectedChannel().getId()
@@ -85,8 +83,6 @@ public final class AudioTool {
         }
         am.openAudioConnection(vc);
         getServerAP(gmre.getGuild().getId()).setPaused(false);
-
-        System.out.println(connections);
     }
 
     public static void disconnectFromVC(GuildMessageReceivedEvent gmre) {

@@ -37,7 +37,6 @@ public class AudioEvent extends ListenerAdapter {
             {
                 // get link
                 String ytlink = RegexTool.getGroups("^(?is)mplay (.+)$", cmdString).get(0);
-                System.out.println("Playing: " + ytlink);
 
                 // Connect to correct channel
                 if (AudioTool.connect(gmre) == -1) {
@@ -59,8 +58,6 @@ public class AudioEvent extends ListenerAdapter {
 
                 // Display search results
                 searchResult = YTTool.search(query);
-                System.out.println("printing search result");
-                System.out.println(searchResult);
 
                 // Set waitingForResponse
                 waitingForResponse = true;
