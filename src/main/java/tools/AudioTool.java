@@ -114,21 +114,6 @@ public final class AudioTool {
         getServerAPM(serverID).loadItem(s, AudioTool.getServerALRH(serverID));
     }
 
-    public static ArrayList<String> getStatus(GuildMessageReceivedEvent gmre) {
-        AudioPlayer ap = getServerAP(gmre.getGuild().getId());
-        AudioTrack at;
-
-        if ((at = ap.getPlayingTrack()) != null) {
-            ArrayList<String> out = new ArrayList<>();
-            out.add(at.getIdentifier());
-            out.add(String.valueOf(at.getPosition()));
-            out.add(String.valueOf(at.getDuration()));
-            return out;
-        } else {
-            return null;
-        }
-    }
-
     public static String getStatusString(GuildMessageReceivedEvent gmre) {
         AudioPlayer ap = getServerAP(gmre.getGuild().getId());
         AudioTrack at;
@@ -161,9 +146,22 @@ public final class AudioTool {
                 durSecStr = "0" + durSecStr;
             }
 
+            // Do emoji
+            float progFloat = (float) posInt/durInt;
+            int progInt = (int) (progFloat / 0.1);
+
+            String progString = "";
+            for (int i = 0; i < progInt; i++) {
+                progString += "<:pf:667220899702898698>";
+            }
+            progString += "<:pm:667220547796729866>";
+            for (int i = 0; i < (10-progInt-1); i++) {
+                progString += "<:pe:667220547800924162>";
+            }
+
             // Form string
             return "Currently Playing: " + title + "\n" +
-                    posMinStr + ":" + posSecStr + "/" + durMinStr + ":" + durSecStr;
+                    posMinStr + ":" + posSecStr + "/" + durMinStr + ":" + durSecStr + " | " + progString;
 
         } else {
             return null;

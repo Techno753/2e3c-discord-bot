@@ -105,7 +105,7 @@ public class AudioEvent extends ListenerAdapter {
                 }
             }
 
-        // Gets current playing and progress bar TODO
+        // Gets current playing
         } else if (Pattern.matches("^(?i)mnp$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
@@ -124,7 +124,7 @@ public class AudioEvent extends ListenerAdapter {
             }
 
         // Gets queue TODO
-        } else if (Pattern.matches("^(?i)mdc$", cmdString) &&
+        } else if (Pattern.matches("^(?i)mq$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
                 // Disconnects from the channel
@@ -132,7 +132,7 @@ public class AudioEvent extends ListenerAdapter {
             }
 
         // Skips current song TODO
-        } else if (Pattern.matches("^(?i)mdc$", cmdString) &&
+        } else if (Pattern.matches("^(?i)mskip$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
                 // Disconnects from the channel
@@ -140,7 +140,7 @@ public class AudioEvent extends ListenerAdapter {
             }
 
         // Skips to given song index TODO
-        } else if (Pattern.matches("^(?i)mdc$", cmdString) &&
+        } else if (Pattern.matches("^(?i)mskip ([\\d]+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
                 // Disconnects from the channel
