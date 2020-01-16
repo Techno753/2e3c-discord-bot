@@ -22,8 +22,8 @@ If the bot is in a different channel of the same server, the bot will move chann
 ## Tags
 [Commands](#tag-commands)  
 Users can create custom image and text responses and use them in any server.
-- Text tag: ```^att /<tag/> /<response/>```
-- Image tag: ```^ait /<tag/>``` with an image upload
+- Text tag: ```^att <tag> <response>```
+- Image tag: ```^ait <tag>``` with an image upload
 
 Tags can be called by any user in any server with ```^t /<tag/>```
 
