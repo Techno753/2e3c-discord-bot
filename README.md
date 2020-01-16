@@ -75,11 +75,14 @@ Command | Perms | Description | Example
 ^mpick \<1 - 5\> | User | Following a `^msearch` command, will play the chosen video. | ^mpick 3
 ^mpause | User | Pauses video if the bot is currently playing something. | 
 ^mresume | User | Resumes video if the bot was paused. | 
-^mskip | User | Skips the currently playing video. | 
-^mskipto \<n\> | User | Skips to the n-th video in queue. | ^skipto 3
 ^mnp | User | Displays information on the currently playing video. | 
 ^mq | User | Displays the currently queued video. | 
+^mskip | User | Skips the currently playing video. | 
+^mskipto \<n\> | User | Skips to the n-th video in queue. | ^skipto 3
+^mmove | User | Moves the bot to the user's voice channel | 
+^mclear | User | Stops the currently playing video and clears the queue | 
 ^mdc | User | Disconnects the bot from the current voice channel | 
+
 
 
 #### Server Info Commands
