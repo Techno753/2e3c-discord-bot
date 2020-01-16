@@ -53,7 +53,7 @@ Command | Perms | Description | Example
 Command | Perms | Description | Example
 :--- | :--- | :--- | :---
 ^att \<tag\> \<reply\> | User | Creates a text tag. | ^att Marco Polo
-^aid \<tag\> | User | Creates an image tag. User needs to upload a single image with the message. | ^att pepehands
+^aid \<tag\> | User | Creates an image tag. User needs to upload a single image with the message. | ^ait pepehands
 ^rt \<tag\> | User | Removes a tag if the user created the tag. | ^rt Marco
 ^t \<tag\> | User | Replies with an image or text depending on the tag called. | ^t pepehands
 
