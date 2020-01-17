@@ -56,6 +56,7 @@ public final class AudioTool {
         // if user not in vc then reply message
         if (gmre.getMember().getVoiceState().getChannel() == null) {
             //msgOut = "User is not in a voice channel";
+
             return -1;
 
             // if bot not in any channel then connect to user's channel
@@ -294,11 +295,20 @@ public final class AudioTool {
         return null;
     }
 
-    public static boolean inSameChannel(GuildMessageReceivedEvent gmre) {
-        String userChannel = gmre.getMember().getVoiceState().getChannel().getId();
-        String botChannel = gmre.getGuild().getAudioManager().getConnectedChannel().getId();
+    public static int inSameChannel(GuildMessageReceivedEvent gmre) {
+        VoiceChannel userChannel = gmre.getMember().getVoiceState().getChannel();
+        String botChannel;
 
-        return userChannel.equals(botChannel);
+        if ((userChannel) != null) {
+            if ((botChannel = gmre.getGuild().getAudioManager().getConnectedChannel().getId()) != null) {
+                if (userChannel.getId().equals(botChannel)) {
+                    return 1;   // same channel
+                }
+                return -1; // diff channels
+            }
+            return -2;  // bot not connected
+        }
+        return -3;  // user not in channel
     }
 
     // Connection property getters

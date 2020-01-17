@@ -26,9 +26,11 @@ public class MyAudioLoadResultHandler implements AudioLoadResultHandler {
 
     public void noMatches() {
         System.out.println("No such audio");
+        ts.setLastQueuedTitle(null);
     }
 
     public void loadFailed(FriendlyException e) {
         System.out.println("Things went bad");
+        ts.setLastQueuedTitle(null);
     }
 }

@@ -43,8 +43,12 @@ public class AudioEvent extends ListenerAdapter {
                     msgOut = "User is not in a voice channel";
                 } else {
                     // Queue song TODO check if can get title of queued track
-                    String title = AudioTool.queue(ytlink, gmre);
-                    msgOut = "Queued: " + title;
+                    String title;
+                    if ((title = AudioTool.queue(ytlink, gmre)) != null) {
+                        msgOut = "Queued: " + title;
+                    } else {
+                        msgOut = "Unable to find video.";
+                    }
                 }
                 msgSet = true;
             }
@@ -144,7 +148,7 @@ public class AudioEvent extends ListenerAdapter {
         } else if (Pattern.matches("^(?i)mskip$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
-                if (AudioTool.inSameChannel(gmre)) {
+                if (AudioTool.inSameChannel(gmre) == 1) {
                     // Skips current song
                     int result = AudioTool.skip(gmre);
                     if (result == 1) {
@@ -155,7 +159,7 @@ public class AudioEvent extends ListenerAdapter {
                         msgOut = "Bot not connected";
                     }
                 } else {
-                    msgOut = "User is not connected to the same channel as bot";
+                    msgOut = "User not in the same channel as bot";
                 }
                 msgSet = true;
             }
@@ -164,7 +168,7 @@ public class AudioEvent extends ListenerAdapter {
         } else if (Pattern.matches("^(?i)mskipto ([\\d]+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
-                if (AudioTool.inSameChannel(gmre)) {
+                if (AudioTool.inSameChannel(gmre) == 1) {
                     // get argument
                     int ind = Integer.parseInt(RegexTool.getGroups("^(?i)mskipto ([\\d]+)$", cmdString).get(0));
 
@@ -183,7 +187,7 @@ public class AudioEvent extends ListenerAdapter {
                         msgOut = "There aren't that many songs in queue";
                     }
                 } else {
-                    msgOut = "User is not connected to the same channel as bot";
+                    msgOut = "User not in the same channel as bot";
                 }
                 msgSet = true;
             }
@@ -192,7 +196,7 @@ public class AudioEvent extends ListenerAdapter {
         } else if (Pattern.matches("^(?i)mpause$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
-                if (AudioTool.inSameChannel(gmre)) {
+                if (AudioTool.inSameChannel(gmre) == 1) {
                     int result = AudioTool.pausePlayback(gmre);
                     if (result == 1) {
                         msgOut = "Paused";
@@ -213,7 +217,7 @@ public class AudioEvent extends ListenerAdapter {
         } else if (Pattern.matches("^(?i)mresume$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
-                if (AudioTool.inSameChannel(gmre)) {
+                if (AudioTool.inSameChannel(gmre) == 1) {
                     int result = AudioTool.resumePlayback(gmre);
                     if (result == 1) {
                         msgOut = "Resumed";
@@ -235,7 +239,7 @@ public class AudioEvent extends ListenerAdapter {
         } else if (Pattern.matches("^(?i)mclear$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
-                if (AudioTool.inSameChannel(gmre)) {
+                if (AudioTool.inSameChannel(gmre) == 1) {
 
                     // Skips current song
                     int result = AudioTool.clear(gmre);
