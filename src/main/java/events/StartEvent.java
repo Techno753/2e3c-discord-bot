@@ -37,7 +37,7 @@ public class StartEvent extends ListenerAdapter {
             cmdString = msgIn.toLowerCase().substring(1);
         }
 
-        // Adds a text tag
+        // Shuts down the bot
         if (Pattern.matches("^(?is)shutdown$", cmdString) &&
                 isBotCreator(gmre)) {
             {
