@@ -1,5 +1,6 @@
 package events;
 
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import static tools.VerifyMsgTool.*;
@@ -16,7 +17,8 @@ public class GenericEvent extends ListenerAdapter {
         // Get message as raw String
         String msgIn = gmre.getMessage().getContentRaw();
         String cmdString = "";
-        String msgOut = "";
+        String  msgOut = "";
+        String msgType = "msgTo";
         boolean msgSet = false;
 
         // Prints message to terminal
@@ -43,6 +45,11 @@ public class GenericEvent extends ListenerAdapter {
             msgOut = "World!";
             msgSet = true;
 
+        } else if (Pattern.matches("^(?i)\\^help$", msgIn)) {
+            System.out.println("user asking for help");
+            msgOut = "All documentation on how to set up and use the bot at: https://github.com/Techno753/2e3c-discord-bot/blob/master/README.md";
+            msgSet = true;
+
         // Pings Apple, kek.
         } else if (Pattern.matches("^(?i)pa$", cmdString) &&
             hasPrivs(gmre)) {
@@ -52,7 +59,15 @@ public class GenericEvent extends ListenerAdapter {
 
         // Displays message
         if (msgSet) {
-            gmre.getChannel().sendMessage(msgOut).queue();
+            if (msgType == "msgTo") {
+                final String msgOutFinal = msgOut;
+                gmre.getAuthor().openPrivateChannel().queue(channel -> { // this is a lambda expression
+                    // the channel is the successful response
+                    channel.sendMessage(msgOutFinal).queue();
+                });
+            } else {
+                gmre.getChannel().sendMessage(msgOut).queue();
+            }
         }
     }
 }
