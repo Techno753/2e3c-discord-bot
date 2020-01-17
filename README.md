@@ -3,7 +3,7 @@ Personal discord bot to practice Java and APIs
 
 ## Quickstart
 1. Add the bot to your server by visiting: https://discordapp.com/api/oauth2/authorize?client_id=664621951037472798&permissions=0&scope=bot
-2. Set channels where users can use bot commands in (bot channels) with `^addbc #channel`
+2. Set channels where users can use bot commands in with `^addbc #channel`
 3. Set users who can use admin commands with `^addba @user`
 4. Optionally, change the command prefix with `^prefix <prefix>`
 5. You're set!
@@ -21,11 +21,13 @@ If the bot is in a different channel of the same server, the bot will move chann
 
 ## Tags
 [Commands](#tag-commands)  
-Users can create custom image and text responses and use them in any server.
+Users can create custom text and image responses and use them in any server.
 - Text tag: ```^att <tag> <response>```
 - Image tag: ```^ait <tag>``` with an image upload
 
 Tags can be called by any user in any server containing the bot with ```^t <tag>```
+
+The list of tags can be retrieved using ```^lt```
 
 Tags can only be deleted by their creator with ```^rt```
 
@@ -65,6 +67,7 @@ Command | Perms | Description | Example
 ^att \<tag\> \<reply\> | User | Creates a text tag. | ^att Marco Polo
 ^ait \<tag\> | User | Creates an image tag. User needs to upload a single image with the message. | ^ait pepehands
 ^rt \<tag\> | User | Removes a tag if the user created the tag. | ^rt Marco
+^lt | User | Lists all the tags | 
 ^t \<tag\> | User | Replies with an image or text depending on the tag called. | ^t pepehands
 
 #### Music Commands (WIP)
