@@ -59,8 +59,6 @@ public class YTTool {
                     .setType("video")
                     .execute();
 
-            System.out.println(request);
-
             ArrayList<ArrayList<String>> filtered = filterSearchJSON(response.toString());
 
             return filtered;
@@ -71,8 +69,6 @@ public class YTTool {
     }
 
     public static ArrayList<ArrayList<String>> filterSearchJSON(String s) {
-        System.out.println("printing output");
-        System.out.println(s);
 
         try {
             ArrayList<ArrayList<String>> out = new ArrayList<>();

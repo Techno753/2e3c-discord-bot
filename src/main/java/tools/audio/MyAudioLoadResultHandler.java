@@ -13,7 +13,6 @@ public class MyAudioLoadResultHandler implements AudioLoadResultHandler {
     }
 
     public void trackLoaded(AudioTrack audioTrack) {
-        System.out.println("QUEUEING: " + audioTrack.getInfo().title);
         ts.setLastQueuedTitle(audioTrack.getInfo().title);
         ts.queue(audioTrack);
     }
