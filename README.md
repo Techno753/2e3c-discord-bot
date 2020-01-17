@@ -51,6 +51,8 @@ Command | Perms | Description | Example
 :--- | :--- | :--- | :---
 ^ping | User |  Replies with "Pong!". Basic command to check that the bot is listening. | 
 ^hello | User | Replies with "World!". Wouldn't be a program without a "Hello, World!" reference. | 
+^help | User | Private Messages the user with a link to the bot's documentation page. | 
+^shutdown | Tech | Shuts down the bot. | 
 ^pa | BA | Pings Apple on Discord. Hi, Apple! | 
 
 #### RNG Commands
