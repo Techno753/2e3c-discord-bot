@@ -1,5 +1,6 @@
 package events;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import tools.ImageTool;
@@ -23,6 +24,8 @@ public class TagEvent extends ListenerAdapter {
         String cmdString = "";
         String msgOut = "";
         boolean msgSet = false;
+        String msgType = "";
+        EmbedBuilder eb = new EmbedBuilder();
 
         if (msgIn.length() > 1 && hasCorrectPrefix(gmre)) {
             cmdString = msgIn.toLowerCase().substring(1);
@@ -69,11 +72,9 @@ public class TagEvent extends ListenerAdapter {
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
                 String tag = RegexTool.getGroups("^(?i)rt (\\w+)$", cmdString).get(0);
-                System.out.println("TEST 1");
 
                 // check that user that wrote message owns tag
                 if (VerifyMsgTool.isTagOwner(gmre, tag) || VerifyMsgTool.hasPrivs(gmre)) {
-                    System.out.println("TEST 2");
                     int result = TagTool.removeTag(tag);
 
                     if (result == 1) {
@@ -85,6 +86,43 @@ public class TagEvent extends ListenerAdapter {
                     msgOut = "You do not own this tag";
                 }
                 msgSet = true;
+            }
+
+        // Lists all tags
+        } else if (Pattern.matches("(?i)lt", cmdString) &&
+                (isCmdChannel(gmre) || hasPrivs(gmre))) {
+            {
+                ArrayList<String> textTagArray = TagTool.getTextTags();
+                String textTagStr = textTagArray.get(0);
+
+                for (int i = 1; i < textTagArray.size(); i++) {
+                    if (textTagStr.length() < 300) {
+                        textTagStr += ", " + textTagArray.get(i);
+                    } else {
+                        textTagStr += ", ...";
+                        break;
+                    }
+                }
+
+                ArrayList<String> imageTagArray = TagTool.getImageTags();
+                String imageTagStr = imageTagArray.get(0);
+
+                for (int i = 1; i < imageTagArray.size(); i++) {
+                    if (imageTagStr.length() < 300) {
+                        imageTagStr += ", " + imageTagArray.get(i);
+                    } else {
+                        imageTagStr += ", ...";
+                        break;
+                    }
+                }
+
+                eb.setTitle("All Tags");
+                eb.addField("Text Tags", textTagStr, false);
+                eb.addField("Image Tags", imageTagStr, false);
+
+                msgType = "embed";
+                msgSet = true;
+
             }
 
         // Invokes a tag
@@ -122,7 +160,12 @@ public class TagEvent extends ListenerAdapter {
 
         // Displays message
         if (msgSet) {
-            gmre.getChannel().sendMessage(msgOut).queue();
+            if (msgType == "embed") {
+                gmre.getChannel().sendMessage(eb.build()).queue();
+                eb.clear();
+            } else {
+                gmre.getChannel().sendMessage(msgOut).queue();
+            }
         }
     }
 }

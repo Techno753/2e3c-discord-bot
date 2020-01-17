@@ -76,17 +76,6 @@ public final class TagTool {
             return 1;
         }
         return -1;
-
-
-//        try {
-//            FileWriter file = new FileWriter("src/main/resources/tagData/tagData.json");
-//            file.write(tagList.toJSONString());
-//            file.flush();
-//
-//        } catch (Exception e) {
-//            System.out.println("Error writing to config file.");
-//            return -3;  // Error writing to tag file.
-//        }
     }
 
     public static int addTextTag(GuildMessageReceivedEvent gmre, String cmdString) {
@@ -156,10 +145,28 @@ public final class TagTool {
         return -1;  // Tag not found
     }
 
+    public static ArrayList<String> getTextTags() {
+        ArrayList<String> textTags = new ArrayList<>();
 
-    // TODO
-    public static int updateTag(String tagTag) {
-        return -1;
+        for (Tag t : tagArray) {
+            if (t.getType().equals("text")) {
+                textTags.add(t.getTag());
+            }
+        }
+
+        return textTags;
+    }
+
+    public static ArrayList<String> getImageTags() {
+        ArrayList<String> imageTags = new ArrayList<>();
+
+        for (Tag t : tagArray) {
+            if (t.getType().equals("image")) {
+                imageTags.add(t.getTag());
+            }
+        }
+
+        return imageTags;
     }
 
     public static boolean tagExists(String tagTag) {
