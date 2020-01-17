@@ -22,7 +22,7 @@ public class StartEvent extends ListenerAdapter {
         ConfigTool.updateServers(re.getJDA());
         ConfigTool.printConfig(re.getJDA());
         TagTool.readTags();
-        re.getJDA().getPresence().setActivity(Activity.listening("Type ^help for help"));
+        re.getJDA().getPresence().setActivity(Activity.playing("Type ^help for help"));
         System.out.println("Ready!");
     }
 

@@ -295,6 +295,10 @@ public final class AudioTool {
         return null;
     }
 
+    public static String getCurrentlyPlayingTitle(GuildMessageReceivedEvent gmre) {
+        return getServerAP(gmre.getGuild().getId()).getPlayingTrack().getInfo().title;
+    }
+
     public static int inSameChannel(GuildMessageReceivedEvent gmre) {
         VoiceChannel userChannel = gmre.getMember().getVoiceState().getChannel();
         String botChannel;

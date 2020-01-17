@@ -46,7 +46,6 @@ public class GenericEvent extends ListenerAdapter {
             msgSet = true;
 
         } else if (Pattern.matches("^(?i)\\^help$", msgIn)) {
-            System.out.println("user asking for help");
             msgOut = "All documentation on how to set up and use the bot at: https://github.com/Techno753/2e3c-discord-bot/blob/master/README.md";
             msgSet = true;
 

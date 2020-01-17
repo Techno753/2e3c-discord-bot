@@ -177,7 +177,7 @@ public class AudioEvent extends ListenerAdapter {
                         // Skips to song
                         int result = AudioTool.skipN(gmre, ind);
                         if (result == 1) {
-                            msgOut = "Skipping to ALAN PLEASE IMPLEMENT";
+                            msgOut = "Skipping to: " + AudioTool.getCurrentlyPlayingTitle(gmre);
                         } else if (result == -2) {
                             msgOut = "Not playing any music";
                         } else if (result == -1) {
