@@ -17,7 +17,7 @@ Music can be played by 2 methods.
 When a YouTube video is queued, the bot will join the voice channel that the user is in.
 If the bot is in a different channel of the same server, the bot will move channels to follow the user. This currently maintains the queued videos.
 
-```^mdc``` will disconnect the bot from its current voice channel and clear any queued videos.
+```^mdc``` will disconnect the bot from its current voice channel and clear any queued videos. **Use this command if the bot becomes unresponsive.**
 
 ## Tags
 [Commands](#tag-commands)  
