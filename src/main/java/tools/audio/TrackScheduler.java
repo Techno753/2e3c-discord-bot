@@ -7,10 +7,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.Guild;
 import tools.AudioTool;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
@@ -72,9 +69,20 @@ public class TrackScheduler extends AudioEventAdapter {
     // If the track ended normally then play next track
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+        // if song ended and none left in queue
         if (queue.size() == 0) {
-            System.out.println("No songs left. Disconnecting.");
-            AudioTool.disconnectFromVC(g);
+
+            // perform another check after 10 minutes
+            ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
+
+            exec.schedule(new Runnable() {
+                public void run() {
+                    if (queue.size() == 0) {
+                        System.out.println("5 seconds without playing anything. Disconnecting.");
+                        AudioTool.disconnectFromVC(g);
+                    }
+                }
+            }, 10, TimeUnit.MINUTES);
         } else if (endReason.mayStartNext) {
             System.out.println("???");
             nextTrack();
