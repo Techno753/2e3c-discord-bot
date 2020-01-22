@@ -1,6 +1,9 @@
 package events;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.events.channel.voice.GenericVoiceChannelEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import tools.*;
@@ -18,6 +21,15 @@ public class AudioEvent extends ListenerAdapter {
     String lastUser = "";
     ArrayList<ArrayList<String>> searchResult = new ArrayList<>();
 
+    // todo ??
+    public void onGenericVoiceChannel(GenericVoiceChannelEvent gvce) {
+        int size = gvce.getGuild().getAudioManager().getConnectedChannel().getMembers().size();
+        System.out.println("Users in VC: " + size);
+        if (size == 1) {
+            AudioTool.disconnectFromVC(gvce.getGuild());
+        }
+    }
+
     public void onGuildMessageReceived(GuildMessageReceivedEvent gmre) {
 
         // Get message as raw String
@@ -31,7 +43,7 @@ public class AudioEvent extends ListenerAdapter {
             cmdString = msgIn.substring(1);
         }
 
-        // Queues video link TODO Separate out channel moving
+        // Queues video link
         if (Pattern.matches("^(?i)mplay (.+)$", cmdString) &&
                 (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
@@ -273,7 +285,7 @@ public class AudioEvent extends ListenerAdapter {
             (isCmdChannel(gmre) || hasPrivs(gmre))) {
             {
                 // Disconnects from the channel
-                AudioTool.disconnectFromVC(gmre);
+                AudioTool.disconnectFromVC(gmre.getGuild());
             }
         }
         // Displays message

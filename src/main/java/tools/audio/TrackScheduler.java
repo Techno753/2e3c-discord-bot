@@ -4,9 +4,11 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import tools.YTTool;
+import net.dv8tion.jda.api.entities.Guild;
+import tools.AudioTool;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -14,12 +16,17 @@ public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
     private final BlockingQueue<AudioTrack> queue;
     private String lastQueuedTitle;
+    private Guild g;
 
     // constructor
     public TrackScheduler(AudioPlayer player) {
         this.player = player;
         this.queue = new LinkedBlockingQueue<>();
         this.lastQueuedTitle = "NOT SET";
+    }
+
+    public void setGuild(Guild g) {
+        this.g = g;
     }
 
     // If nothing is playing then play track
@@ -40,7 +47,9 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public void nextTrack() {
         AudioTrack nt = queue.poll();
-        player.startTrack(nt, false);
+        if (nt != null) {
+            player.startTrack(nt, false);
+        }
     }
 
     public void skip() {
@@ -63,7 +72,11 @@ public class TrackScheduler extends AudioEventAdapter {
     // If the track ended normally then play next track
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        if (endReason.mayStartNext) {
+        if (queue.size() == 0) {
+            System.out.println("No songs left. Disconnecting.");
+            AudioTool.disconnectFromVC(g);
+        } else if (endReason.mayStartNext) {
+            System.out.println("???");
             nextTrack();
         }
     }

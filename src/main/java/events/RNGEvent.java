@@ -89,6 +89,7 @@ public class RNGEvent extends ListenerAdapter {
                 msgOut = "__Rolled a d" + sides + " " + times + " times__\n" +
                         "Rolls: " + rolls + "\n" +
                         "Average: " + mean + "\n" +
+                        "Sum: " + sum + "\n" +
                         "Min: " + Collections.min(rolls) + "\n" +
                         "Max: " + Collections.max(rolls);
                 if (msgOut.length() > 1999) {

@@ -6,6 +6,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -42,6 +43,7 @@ public final class AudioTool {
 
         // Create and set TrackScheduler to get events from AudioPlayer
         TrackScheduler ts = new TrackScheduler(player);
+        ts.setGuild(gmre.getGuild());
         player.addListener(ts);
         MyAudioLoadResultHandler audioLoader = new MyAudioLoadResultHandler(ts);
 
@@ -86,13 +88,19 @@ public final class AudioTool {
         getServerAP(gmre.getGuild().getId()).setPaused(false);
     }
 
-    public static void disconnectFromVC(GuildMessageReceivedEvent gmre) {
+    public static void disconnectFromVC(Guild g) {
         ConnectionData toRemove = null;
 
         for (ConnectionData cd : connections) {
-            if (cd.getServerID().equals(gmre.getGuild().getId())) {
+            if (cd.getServerID().equals(g.getId())) {
+                // close connection to channel
+                g.getAudioManager().closeAudioConnection();
                 // clear tracks
                 cd.getTS().clear();
+                // destroys player
+                cd.getAP().destroy();
+                // shutdown APM
+                cd.getAPM().shutdown();
                 // set ConnectionData to remove
                 toRemove = cd;
             }
@@ -102,7 +110,7 @@ public final class AudioTool {
         }
 
         // Close channel connection
-        gmre.getGuild().getAudioManager().closeAudioConnection();
+        g.getAudioManager().closeAudioConnection();
     }
 
     // Playback methods
@@ -166,8 +174,7 @@ public final class AudioTool {
             if ((ap = getServerAP(serverID)).getPlayingTrack() != null) {
                     // stop current and play next TODO
                     ap.stopTrack();
-                    ts = getServerTS(serverID);
-                    ts.nextTrack();
+                    getServerTS(serverID).nextTrack();
                     return 1;
             }
             return -2; // not playing
