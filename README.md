@@ -19,6 +19,8 @@ If the bot is in a different channel of the same server, the bot will move chann
 
 ```^mdc``` will disconnect the bot from its current voice channel and clear any queued videos. **Use this command if the bot becomes unresponsive.**
 
+The bot will auto disconnect from the channel if the bot is inactive for 10 minutes.
+
 ## Tags
 [Commands](#tag-commands)  
 Users can create custom text and image responses and use them in any server.
@@ -75,7 +77,7 @@ Command | Perms | Description | Example
 #### Music Commands (WIP)
 Command | Perms | Description | Example
 :--- | :--- | :--- | :---
-^mplay \<YouTube Link\> | User | Connects to a channel and plays a YouTube video. | ^mplay https://www.youtube.com/watch?v=dQw4w9WgXcQ
+^mplay \<YouTube Link\> | User | Connects to a channel and plays a YouTube video or playlist. | ^mplay https://www.youtube.com/watch?v=dQw4w9WgXcQ
 ^msearch \<Search Terms\> | User | Replies with the first 5 results of a YouTube Search. | ^msearch Rick Roll
 ^mpick \<1 - 5\> | User | Following a `^msearch` command, will play the chosen video. | ^mpick 3
 ^mpause | User | Pauses video if the bot is currently playing something. | 
