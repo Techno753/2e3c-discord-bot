@@ -291,7 +291,13 @@ public final class AudioTool {
             } else {
                 int count = 1;
                 for (AudioTrack at : q) {
-                    out += count + " - " + at.getInfo().title + "\n";
+
+                    String durString = String.valueOf(at.getDuration());
+                    durString = durString.substring(0, durString.length()-3);
+                    long durLong = Long.parseLong(durString);
+                    String durTime = TimeTool.stripHours(TimeTool.secToString(durLong));
+
+                    out += count + " - " + at.getInfo().title + " (" + durTime + ")" + "\n";
                     count++;
                 }
                 return out;
