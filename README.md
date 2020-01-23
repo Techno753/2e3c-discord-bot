@@ -83,7 +83,7 @@ Command | Perms | Description | Example
 ^mpause | User | Pauses video if the bot is currently playing something. | 
 ^mresume | User | Resumes video if the bot was paused. | 
 ^mnp | User | Displays information on the currently playing video. | 
-^mq | User | Displays the currently queued video. | 
+^mq | User | Displays the currently queued videos. | 
 ^mskip | User | Skips the currently playing video. | 
 ^mskipto \<n\> | User | Skips to the n-th video in queue. | ^skipto 3
 ^mmove | User | Moves the bot to the user's voice channel | 
