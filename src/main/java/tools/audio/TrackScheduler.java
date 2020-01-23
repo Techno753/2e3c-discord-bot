@@ -13,6 +13,7 @@ public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
     private final BlockingQueue<AudioTrack> queue;
     private String lastQueuedTitle;
+    private String lastQueuedType;
     private Guild g;
     boolean hasPlayedSince = true;
 
@@ -21,6 +22,7 @@ public class TrackScheduler extends AudioEventAdapter {
         this.player = player;
         this.queue = new LinkedBlockingQueue<>();
         this.lastQueuedTitle = "NOT SET";
+        this.lastQueuedType = "NOT SET";
     }
 
     public void setGuild(Guild g) {
@@ -36,12 +38,20 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
-    public void setLastQueuedTitle(String s){
+    public void setQueuedTitle(String s){
         lastQueuedTitle = s;
     }
 
-    public String getLastQueuedTitle() {
+    public String getQueuedTitle() {
         return lastQueuedTitle;
+    }
+
+    public void setQueuedType(String s){
+        lastQueuedType = s;
+    }
+
+    public String getQueuedType(){
+        return lastQueuedType;
     }
 
     public void nextTrack() {

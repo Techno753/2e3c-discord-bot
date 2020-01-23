@@ -13,7 +13,8 @@ public class MyAudioLoadResultHandler implements AudioLoadResultHandler {
     }
 
     public void trackLoaded(AudioTrack audioTrack) {
-        ts.setLastQueuedTitle(audioTrack.getInfo().title);
+        ts.setQueuedTitle(audioTrack.getInfo().title);
+        ts.setQueuedType("Video");
         ts.queue(audioTrack);
     }
 
@@ -21,15 +22,17 @@ public class MyAudioLoadResultHandler implements AudioLoadResultHandler {
         for (AudioTrack track : audioPlaylist.getTracks()) {
             ts.queue(track);
         }
+        ts.setQueuedType("Playlist");
+        ts.setQueuedTitle(audioPlaylist.getName());
     }
 
     public void noMatches() {
         System.out.println("No such audio");
-        ts.setLastQueuedTitle(null);
+        ts.setQueuedTitle(null);
     }
 
     public void loadFailed(FriendlyException e) {
         System.out.println("Things went bad");
-        ts.setLastQueuedTitle(null);
+        ts.setQueuedTitle(null);
     }
 }

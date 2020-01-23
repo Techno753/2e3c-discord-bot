@@ -55,9 +55,9 @@ public class AudioEvent extends ListenerAdapter {
                     msgOut = "User is not in a voice channel";
                 } else {
                     // Queue song TODO check if can get title of queued track
-                    String title;
-                    if ((title = AudioTool.queue(ytlink, gmre)) != null) {
-                        msgOut = "Queued: " + title;
+                    String[] info;
+                    if ((info = AudioTool.queue(ytlink, gmre)) != null) {
+                        msgOut = "Queued " + info[1] + ": " + info[0];
                     } else {
                         msgOut = "Unable to find video.";
                     }
@@ -83,7 +83,7 @@ public class AudioEvent extends ListenerAdapter {
                 eb.setTitle("YouTube Search Results for \"" + query + "\"");
                 String embedBody = "";
                 for (int i = 0; i < searchResult.size(); i++) {
-                    embedBody += (i + 1) + " - " + searchResult.get(i).get(0) + "\n";
+                    embedBody += (i + 1) + " - " + searchResult.get(i).get(1) + " (" + searchResult.get(i).get(2) + ")" + "\n";
                 }
                 eb.addField("Results:", StringTool.escapeHTML(embedBody), false);
                 eb.addField("", "Select a song using `" + ConfigTool.getBotPrefixByID(gmre.getGuild().getId()) + "mpick <1 - 5>`\n" +
@@ -106,9 +106,9 @@ public class AudioEvent extends ListenerAdapter {
 
                         // Get video to play
                         String number = RegexTool.getGroups("^(?i)mpick ([1-9]|10)$", cmdString).get(0);
-                        String videoID = searchResult.get(Integer.parseInt(number) - 1).get(1);
+                        String videoID = searchResult.get(Integer.parseInt(number) - 1).get(0);
 
-                        msgOut = "Queued: " + searchResult.get(Integer.parseInt(number) - 1).get(0);
+                        msgOut = "Queued: " + searchResult.get(Integer.parseInt(number) - 1).get(1);
                         AudioTool.queue(videoID, gmre);
 
                         // unset waiting for response

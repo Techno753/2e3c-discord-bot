@@ -120,14 +120,15 @@ public final class AudioTool {
 
     // Playback methods
     // Queues song
-    public static String queue(String s, GuildMessageReceivedEvent gmre) {
+    public static String[] queue(String s, GuildMessageReceivedEvent gmre) {
         // Get serverID
         String serverID = gmre.getGuild().getId();
 
         // Queue song
         try {
             getServerAPM(serverID).loadItem(s, AudioTool.getServerALRH(serverID)).get();
-            return getServerTS(gmre.getGuild().getId()).getLastQueuedTitle();
+            TrackScheduler ts = getServerTS(gmre.getGuild().getId());
+            return new String[] {ts.getQueuedTitle(), ts.getQueuedType()};
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -231,35 +232,26 @@ public final class AudioTool {
 
             // Get parts
             String title = at.getInfo().title;
-//            String title = YTTool.getTitleByID(at.getIdentifier());
 
-            // Get ms
-            String posString = String.valueOf(at.getPosition());
-            // Convert to s
-            posString = posString.substring(0, posString.length()-3);
-            // Conver to int
-            int posInt = Integer.parseInt(posString);
-            // get mins and secs as str
-            String posMinStr = String.valueOf(posInt/60);
-            String posSecStr = String.valueOf(posInt%60);
-            // Add 0 to front of s if single digit
-            if (posSecStr.length() == 1) {
-                posSecStr = "0" + posSecStr;
-            }
-
-            // Do same to duration
+            // get time strings
             String durString = String.valueOf(at.getDuration());
             durString = durString.substring(0, durString.length()-3);
-            int durInt = Integer.parseInt(durString);
-            String durMinStr = String.valueOf(durInt/60);
-            String durSecStr = String.valueOf(durInt%60);
-            if (durSecStr.length() == 1) {
-                durSecStr = "0" + durSecStr;
+            long durLong = Long.parseLong(durString);
+            String durTime = TimeTool.secToString(durLong);
+
+            String posString = String.valueOf(at.getPosition());
+            posString = posString.substring(0, posString.length()-3);
+            long posLong = Long.parseLong(posString);
+            String posTime = TimeTool.secToString(posLong);
+
+            if (durTime.substring(0, 2).equals("00")) {
+                durTime = durTime.substring(3);
+                posTime = posTime.substring(3);
             }
 
             // Do emoji
-            float progFloat = (float) posInt/durInt;
-            int progInt = (int) (progFloat / 0.1);
+            float progFloat = (float) posLong/durLong;
+            long progLong = (long) (progFloat / 0.1);
 
             String status;
             if (AudioTool.getServerAP(gmre.getGuild().getId()).isPaused()) {
@@ -269,17 +261,17 @@ public final class AudioTool {
             }
 
             String progString = "";
-            for (int i = 0; i < progInt; i++) {
+            for (int i = 0; i < progLong; i++) {
                 progString += "<:pf:667220899702898698>";
             }
             progString += "<:pm:667220547796729866>";
-            for (int i = 0; i < (10-progInt-1); i++) {
+            for (int i = 0; i < (10-progLong-1); i++) {
                 progString += "<:pe:667220547800924162>";
             }
 
             // Form string
             return  title + "\n" +
-                    status + " | " + posMinStr + ":" + posSecStr + "/" + durMinStr + ":" + durSecStr + " | " + progString;
+                    status + " | " + posTime + "/" + durTime + " | " + progString;
 
         } else {
             return null;

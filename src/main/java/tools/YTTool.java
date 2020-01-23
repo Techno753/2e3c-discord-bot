@@ -17,6 +17,7 @@ import org.json.simple.parser.JSONParser;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.Duration;
 import java.util.ArrayList;
 
 public class YTTool {
@@ -25,6 +26,7 @@ public class YTTool {
     private static String API_KEY;
     private static YouTube yt;
 
+    // sets api key and yt object
     public static void setAPIKey(String key) {
         API_KEY = key;
 
@@ -43,12 +45,7 @@ public class YTTool {
         }
     }
 
-    /**
-     * Call function to create API service object. Define and
-     * execute API request. Print API response.
-     *
-     * @throws GeneralSecurityException, IOException, GoogleJsonResponseException
-     */
+    // Searches for 5 videos based on search query
     public static ArrayList<ArrayList<String>> search(String query) {
         try {
             // Define and execute the API request
@@ -59,20 +56,43 @@ public class YTTool {
                     .setType("video")
                     .execute();
 
-            ArrayList<ArrayList<String>> filtered = filterSearchJSON(response.toString());
+            // filter search response for video IDs
+            String videoIDs = filterSearchJSON(response.toString());
 
-            return filtered;
+            // define and execute another request for more video info
+            String vidInfo = getinfo(videoIDs);
+
+
+            // filter video info response for title, duration, and video ID
+            ArrayList<ArrayList<String>> out = filterVideoJSON(vidInfo);
+
+            return out;
 
         } catch (Exception e) {
             return null;
         }
     }
 
-    public static ArrayList<ArrayList<String>> filterSearchJSON(String s) {
-
+    // Searches for 5 video infos based on video ids
+    public static String getinfo(String vidIDs) {
         try {
-            ArrayList<ArrayList<String>> out = new ArrayList<>();
-            String title;
+            // Define and execute the API request
+            YouTube.Videos.List request = yt.videos()
+                    .list("snippet,contentDetails");
+            VideoListResponse response = request.setId(vidIDs).execute();
+            System.out.println(response);
+
+            return response.toString();
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // gets video ids from search
+    public static ArrayList<String> getVideoIDs(String s) {
+        try {
+            ArrayList<String> out = new ArrayList<>();
             String videoID;
 
             // Get JSON Object
@@ -86,16 +106,83 @@ public class YTTool {
 
                 JSONObject vid = (JSONObject) o;
 
-                // get snippet then title
-                JSONObject snip = (JSONObject) vid.get("snippet");
-                title = snip.get("title").toString();
+                // get id then videoid
+                JSONObject id = (JSONObject) vid.get("id");
+                videoID = id.get("videoId").toString();
+
+                out.add(videoID);
+            }
+
+            return out;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // filters search JSON
+    public static String filterSearchJSON(String s) {
+        try {
+            ArrayList<String> out = new ArrayList<>();
+            String videoID;
+
+            // Get JSON Object
+            JSONParser parser = new JSONParser();
+            JSONObject jo = (JSONObject) parser.parse(s);
+            JSONArray ja = (JSONArray) jo.get("items");
+
+            for (Object o : ja) {
+                JSONObject vid = (JSONObject) o;
 
                 // get id then videoid
                 JSONObject id = (JSONObject) vid.get("id");
                 videoID = id.get("videoId").toString();
 
-                vidInfo.add(title);
+                out.add(videoID);
+            }
+
+            System.out.println(String.join(", ", out));
+            return String.join(", ", out);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // filters video info JSON
+    public static ArrayList<ArrayList<String>> filterVideoJSON(String s) {
+        try {
+            ArrayList<ArrayList<String>> out = new ArrayList<>();
+            String videoID;
+            String videoTitle;
+            String videoDuration;
+
+            // Get JSON Object
+            JSONParser parser = new JSONParser();
+            JSONObject jo = (JSONObject) parser.parse(s);
+            JSONArray ja = (JSONArray) jo.get("items");
+
+            for (Object o : ja) {
+                ArrayList<String> vidInfo = new ArrayList<>();
+
+                JSONObject vid = (JSONObject) o;
+
+                // get id then videoid
+                videoID = vid.get("id").toString();
+
+                // get snippet then title
+                JSONObject snip = (JSONObject) vid.get("snippet");
+                videoTitle = snip.get("title").toString();
+
+                // get contentDetails then duration
+                JSONObject det = (JSONObject) vid.get("contentDetails");
+                videoDuration = det.get("duration").toString();
+
                 vidInfo.add(videoID);
+                vidInfo.add(videoTitle);
+                vidInfo.add(TimeTool.secToString(Duration.parse(videoDuration).getSeconds()));
                 out.add(vidInfo);
             }
 
