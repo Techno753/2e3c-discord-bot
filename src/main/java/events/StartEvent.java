@@ -20,9 +20,8 @@ public class StartEvent extends ListenerAdapter {
     public void onReady(ReadyEvent re) {
         ConfigTool.readConfig();
         ConfigTool.updateServers(re.getJDA());
-        ConfigTool.printConfig(re.getJDA());
         TagTool.readTags();
-        re.getJDA().getPresence().setActivity(Activity.playing("Type ^help for help"));
+        re.getJDA().getPresence().setActivity(Activity.playing("^help"));
         System.out.println("Ready!");
     }
 
