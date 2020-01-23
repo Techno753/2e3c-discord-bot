@@ -118,7 +118,7 @@ public final class TagTool {
                     writeTags();
                     return 1;   // Successfully added new tag
                 } else if (result == -1) {
-                    System.out.println("Error downloading image");
+                    System.out.println("Image too large.");
                     return -4;
                 }
             }

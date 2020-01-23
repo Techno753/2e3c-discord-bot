@@ -57,6 +57,8 @@ public class TagEvent extends ListenerAdapter {
                 int resultA = TagTool.addImageTag(gmre, cmdString);
                 if (resultA == 1) {
                     msgOut = "Tag created";
+                } else if (resultA == -4) {
+                    msgOut = "Image size too large. Please keep it 8 megabytes or below.";
                 } else if (resultA == -3) {
                     msgOut = "Tag already exists";
                 } else if (resultA == -2) {

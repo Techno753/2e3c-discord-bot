@@ -13,9 +13,11 @@ public final class ImageTool {
     // Download image by Message Received Event
     public static int downloadImageFromMessage(GuildMessageReceivedEvent gmre, String tagTag) {
         Message.Attachment img = gmre.getMessage().getAttachments().get(0);
-        String imgSaveDir = "src/main/resources/tagData/" + tagTag + "." + img.getFileExtension();
-        if (FileTool.downloadFileByURL(img.getUrl(), imgSaveDir) == 1) {
-            return 1;
+        if (img.getSize() < 8388120) {
+            String imgSaveDir = "src/main/resources/tagData/" + tagTag + "." + img.getFileExtension();
+            if (FileTool.downloadFileByURL(img.getUrl(), imgSaveDir) == 1) {
+                return 1;
+            }
         }
         return -1;
     }
