@@ -57,14 +57,13 @@ public final class AudioTool {
 
         // if user not in vc then reply message
         if (gmre.getMember().getVoiceState().getChannel() == null) {
-            //msgOut = "User is not in a voice channel";
-
             return -1;
 
-            // if bot not in any channel then connect to user's channel
+        // if bot not in any channel then connect to user's channel
         } else if (!AudioTool.exists(serverID)) {
             AudioTool.connectToVC(gmre);
-            // if bot in incorrect channel then move
+
+        // if bot in incorrect channel then move
         } else if (!gmre.getGuild().getAudioManager().getConnectedChannel().getId()
                 .equals(gmre.getMember().getVoiceState().getChannel().getId())) {
             gmre.getGuild().getAudioManager().getConnectedChannel().getId();
@@ -77,13 +76,19 @@ public final class AudioTool {
         System.out.println("Moving channels...");
         AudioManager am = gmre.getGuild().getAudioManager();
         VoiceChannel vc = gmre.getMember().getVoiceState().getChannel();
+
+        // pause player and close connection
         getServerAP(gmre.getGuild().getId()).setPaused(true);
         am.closeAudioConnection();
+
+        // wait 2 seconds
         try {
             TimeUnit.SECONDS.sleep(2);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // reconnect to new channel and resume playing
         am.openAudioConnection(vc);
         getServerAP(gmre.getGuild().getId()).setPaused(false);
     }
@@ -165,14 +170,13 @@ public final class AudioTool {
 
     public static int skip(GuildMessageReceivedEvent gmre) {
         AudioPlayer ap;
-        TrackScheduler ts;
         String serverID = gmre.getGuild().getId();
 
         // check connected
         if (exists(serverID)) {
             // check if playing
             if ((ap = getServerAP(serverID)).getPlayingTrack() != null) {
-                    // stop current and play next TODO
+                    // stop current and play next
                     ap.stopTrack();
                     getServerTS(serverID).nextTrack();
                     return 1;
@@ -191,7 +195,7 @@ public final class AudioTool {
         if (exists(serverID)) {
             // check if playing
             if ((ap = getServerAP(serverID)).getPlayingTrack() != null) {
-                // stop current and play next TODO
+                // stop current and play next
                 ap.stopTrack();
                 ts = getServerTS(serverID);
                 for (int i = 0; i < (n-1); i++) {
@@ -211,7 +215,9 @@ public final class AudioTool {
         // check connected
         if (exists(serverID)) {
                 // stop current and play next TODO
-                getServerTS(serverID).clear();
+                int size = getServerTS(serverID).getQueue().size();
+                skipN(gmre, size);
+                getServerAP(gmre.getGuild().getId()).stopTrack();
                 return 1;
         }
         return -1; // not connected

@@ -14,6 +14,7 @@ public class TrackScheduler extends AudioEventAdapter {
     private final BlockingQueue<AudioTrack> queue;
     private String lastQueuedTitle;
     private Guild g;
+    boolean hasPlayedSince = true;
 
     // constructor
     public TrackScheduler(AudioPlayer player) {
@@ -29,6 +30,7 @@ public class TrackScheduler extends AudioEventAdapter {
     // If nothing is playing then play track
     // else add track to queue
     public void queue(AudioTrack track) {
+        hasPlayedSince = true;
         if (!player.startTrack(track, true)) {
             queue.offer(track);
         }
@@ -51,7 +53,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public void skip() {
         try {
-            queue.poll(3, TimeUnit.SECONDS);
+            queue.poll();
         } catch (Exception e) {
             System.out.println("Error skipping song(s)");
         }
@@ -71,20 +73,20 @@ public class TrackScheduler extends AudioEventAdapter {
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         // if song ended and none left in queue
         if (queue.size() == 0) {
+            hasPlayedSince = false;
 
             // perform another check after 10 minutes
             ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
 
             exec.schedule(new Runnable() {
                 public void run() {
-                    if (queue.size() == 0) {
-                        System.out.println("5 seconds without playing anything. Disconnecting.");
+                    if (hasPlayedSince == false) {
+                        System.out.println("10 seconds without playing anything. Disconnecting.");
                         AudioTool.disconnectFromVC(g);
                     }
                 }
             }, 10, TimeUnit.MINUTES);
         } else if (endReason.mayStartNext) {
-            System.out.println("???");
             nextTrack();
         }
     }
