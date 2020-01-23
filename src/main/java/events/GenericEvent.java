@@ -18,7 +18,7 @@ public class GenericEvent extends ListenerAdapter {
         String msgIn = gmre.getMessage().getContentRaw();
         String cmdString = "";
         String  msgOut = "";
-        String msgType = "msgTo";
+        String msgType = "";
         boolean msgSet = false;
 
         // Prints message to terminal
@@ -47,6 +47,7 @@ public class GenericEvent extends ListenerAdapter {
 
         } else if (Pattern.matches("^(?i)\\^help$", msgIn)) {
             msgOut = "All documentation on how to set up and use the bot at: https://github.com/Techno753/2e3c-discord-bot/blob/master/README.md";
+            msgType = "msgTo";
             msgSet = true;
 
         // Pings Apple, kek.
@@ -68,5 +69,6 @@ public class GenericEvent extends ListenerAdapter {
                 gmre.getChannel().sendMessage(msgOut).queue();
             }
         }
+        msgType = "";
     }
 }
