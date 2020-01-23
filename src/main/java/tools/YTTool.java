@@ -20,7 +20,7 @@ import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.util.ArrayList;
 
-public class YTTool {
+public final class YTTool {
     private static final String APPLICATION_NAME = "2E3C Bot";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static String API_KEY;
