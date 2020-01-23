@@ -27,4 +27,11 @@ public final class TimeTool {
         return hoursString + ":" + minsString + ":" + secsString;
 
     }
+
+    public static String stripHours(String s) {
+        if (s.substring(0, 2).equals("00")) {
+            return s.substring(3);
+        }
+        return s;
+    }
 }

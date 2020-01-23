@@ -182,7 +182,9 @@ public class YTTool {
 
                 vidInfo.add(videoID);
                 vidInfo.add(videoTitle);
-                vidInfo.add(TimeTool.secToString(Duration.parse(videoDuration).getSeconds()));
+                String dur = TimeTool.secToString(Duration.parse(videoDuration).getSeconds());
+                dur = TimeTool.stripHours(dur);
+                vidInfo.add(dur);
                 out.add(vidInfo);
             }
 
