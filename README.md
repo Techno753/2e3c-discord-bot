@@ -11,7 +11,7 @@ Personal discord bot to practice Java and APIs
 ## Music (WIP)
 [Commands](#music-commands-wip)  
 Music can be played by 2 methods.
-- With a YouTube Link: ```^mplay <YouTube Link>```
+- With a YouTube video or playlist link: ```^mplay <YouTube Link>```
 - By searching and choosing:  ```^msearch <Search Term>``` then ```^mpick <1 - 5>```
   
 When a YouTube video is queued, the bot will join the voice channel that the user is in.
@@ -83,7 +83,7 @@ Command | Perms | Description | Example
 ^mpause | User | Pauses video if the bot is currently playing something. | 
 ^mresume | User | Resumes video if the bot was paused. | 
 ^mnp | User | Displays information on the currently playing video. | 
-^mq | User | Displays the currently queued video. | 
+^mq | User | Displays the currently queued videos. | 
 ^mskip | User | Skips the currently playing video. | 
 ^mskipto \<n\> | User | Skips to the n-th video in queue. | ^skipto 3
 ^mmove | User | Moves the bot to the user's voice channel | 
