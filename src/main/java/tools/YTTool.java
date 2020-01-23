@@ -80,7 +80,6 @@ public class YTTool {
             YouTube.Videos.List request = yt.videos()
                     .list("snippet,contentDetails");
             VideoListResponse response = request.setId(vidIDs).execute();
-            System.out.println(response);
 
             return response.toString();
 
@@ -142,7 +141,6 @@ public class YTTool {
                 out.add(videoID);
             }
 
-            System.out.println(String.join(", ", out));
             return String.join(", ", out);
 
         } catch (Exception e) {
