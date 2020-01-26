@@ -21,15 +21,6 @@ public class AudioEvent extends ListenerAdapter {
     String lastUser = "";
     ArrayList<ArrayList<String>> searchResult = new ArrayList<>();
 
-    // todo ??
-    public void onGenericVoiceChannel(GenericVoiceChannelEvent gvce) {
-        int size = gvce.getGuild().getAudioManager().getConnectedChannel().getMembers().size();
-        System.out.println("Users in VC: " + size);
-        if (size == 1) {
-            AudioTool.disconnectFromVC(gvce.getGuild());
-        }
-    }
-
     public void onGuildMessageReceived(GuildMessageReceivedEvent gmre) {
 
         // Get message as raw String
