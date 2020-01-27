@@ -15,7 +15,7 @@ public class TrackScheduler extends AudioEventAdapter {
     private String lastQueuedTitle;
     private String lastQueuedType;
     private Guild g;
-    boolean hasPlayedSince = true;
+    boolean hasPlayedSince = false;
 
     // constructor
     public TrackScheduler(AudioPlayer player) {
@@ -55,6 +55,7 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public void nextTrack() {
+        hasPlayedSince = true;
         AudioTrack nt = queue.poll();
         if (nt != null) {
             player.startTrack(nt, false);

@@ -14,6 +14,7 @@ import tools.audio.AudioPlayerSendHandler;
 import tools.audio.MyAudioLoadResultHandler;
 import tools.audio.TrackScheduler;
 
+import javax.sound.midi.Track;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -217,8 +218,8 @@ public final class AudioTool {
         // check connected
         if (exists(serverID)) {
                 // stop current and play next TODO
-                int size = getServerTS(serverID).getQueue().size();
-                skipN(gmre, size);
+                TrackScheduler ts = getServerTS(serverID);
+                ts.clear();
                 getServerAP(gmre.getGuild().getId()).stopTrack();
                 return 1;
         }
