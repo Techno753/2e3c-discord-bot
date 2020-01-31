@@ -102,7 +102,7 @@ public class TrackScheduler extends AudioEventAdapter {
                 public void run() {
                     TimeTool.printTime();
                     System.out.println("Song has been played in last 10 minutes: " + hasPlayedSince);
-                    System.out.println("Song is currently playing: " + (player.getPlayingTrack().getInfo().title));
+                    System.out.println("Song is currently playing: " + !(player.getPlayingTrack() == null));
                     System.out.println("Songs left in queue: " + queue.size() + "\n");
                     if (hasPlayedSince == false && player.getPlayingTrack() == null && queue.size() == 0) {
                         System.out.println("10 mins without playing anything. Disconnecting.\n");
