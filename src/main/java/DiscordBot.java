@@ -7,6 +7,9 @@ import tools.ConfigTool;
 import tools.InputTool;
 import tools.YTTool;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 public class DiscordBot {
     public static void main(String[] args) throws Exception{
 
@@ -34,5 +37,7 @@ public class DiscordBot {
         JDA jda = builder.build();
 
         ConfigTool.getStringAll(jda);
+
+
     }
 }

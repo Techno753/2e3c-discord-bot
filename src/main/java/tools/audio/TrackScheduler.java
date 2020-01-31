@@ -6,6 +6,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.Guild;
 import tools.AudioTool;
+import tools.TimeTool;
 
 import java.util.concurrent.*;
 
@@ -32,10 +33,13 @@ public class TrackScheduler extends AudioEventAdapter {
     // If nothing is playing then play track
     // else add track to queue
     public void queue(AudioTrack track) {
-        hasPlayedSince = true;
         if (!player.startTrack(track, true)) {
             queue.offer(track);
         }
+
+        TimeTool.printTime();
+        System.out.println("Adding new song\n");
+        hasPlayedSince = true;
     }
 
     public void setQueuedTitle(String s){
@@ -55,10 +59,14 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public void nextTrack() {
-        hasPlayedSince = true;
         AudioTrack nt = queue.poll();
         if (nt != null) {
             player.startTrack(nt, false);
+            TimeTool.printTime();
+            System.out.println("Playing next track");
+            hasPlayedSince = true;
+            System.out.println(nt.getInfo().title);
+            System.out.println(nt.getDuration() + "\n");
         }
     }
 
@@ -83,20 +91,26 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         // if song ended and none left in queue
-        if (queue.size() == 0) {
+        if (queue.size() == 0 && player.getPlayingTrack() == null) {
+            TimeTool.printTime();
+            System.out.println("No song playing and none left in queue. Checking again in 10 seconds\n");
             hasPlayedSince = false;
 
             // perform another check after 10 minutes
             ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
-
             exec.schedule(new Runnable() {
                 public void run() {
-                    if (hasPlayedSince == false) {
-                        System.out.println("10 seconds without playing anything. Disconnecting.");
+                    TimeTool.printTime();
+                    System.out.println("Song has been played in last 10 seconds: " + hasPlayedSince);
+                    System.out.println("Song is currently playing: " + (player.getPlayingTrack().getInfo().title));
+                    System.out.println("Songs left in queue: " + queue.size() + "\n");
+                    if (hasPlayedSince == false && player.getPlayingTrack() == null && queue.size() == 0) {
+                        System.out.println("10 mins without playing anything. Disconnecting.\n");
                         AudioTool.disconnectFromVC(g);
                     }
                 }
-            }, 10, TimeUnit.MINUTES);
+            }, 10, TimeUnit.SECONDS);
+
         } else if (endReason.mayStartNext) {
             nextTrack();
         }

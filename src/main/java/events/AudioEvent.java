@@ -47,10 +47,10 @@ public class AudioEvent extends ListenerAdapter {
                 } else {
                     // Queue song TODO check if can get title of queued track
                     String[] info;
-                    if ((info = AudioTool.queue(ytlink, gmre)) != null) {
+                    if ((info = AudioTool.queue(ytlink, gmre))[0] == "null") {
                         msgOut = "Queued " + info[1] + ": " + info[0];
                     } else {
-                        msgOut = "Unable to find video.";
+                        msgOut = "Unable to find content";
                     }
                 }
                 msgSet = true;

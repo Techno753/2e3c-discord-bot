@@ -1,6 +1,8 @@
 package tools;
 
 import java.lang.reflect.Array;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,7 +27,6 @@ public final class TimeTool {
         }
 
         return hoursString + ":" + minsString + ":" + secsString;
-
     }
 
     public static String stripHours(String s) {
@@ -33,5 +34,12 @@ public final class TimeTool {
             return s.substring(3);
         }
         return s;
+    }
+
+    public static void printTime() {
+        System.out.println(ZonedDateTime.now(
+                // Specify time zone.
+                ZoneId.of( "Pacific/Auckland" )
+        )  );
     }
 }
