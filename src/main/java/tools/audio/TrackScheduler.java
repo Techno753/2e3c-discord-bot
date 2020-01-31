@@ -93,7 +93,7 @@ public class TrackScheduler extends AudioEventAdapter {
         // if song ended and none left in queue
         if (queue.size() == 0 && player.getPlayingTrack() == null) {
             TimeTool.printTime();
-            System.out.println("No song playing and none left in queue. Checking again in 10 seconds\n");
+            System.out.println("No song playing and none left in queue. Checking again in 10 minutes\n");
             hasPlayedSince = false;
 
             // perform another check after 10 minutes
