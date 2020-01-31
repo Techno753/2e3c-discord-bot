@@ -1,6 +1,7 @@
 package tools;
 
 import java.lang.reflect.Array;
+import java.sql.Time;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -41,5 +42,12 @@ public final class TimeTool {
                 // Specify time zone.
                 ZoneId.of( "Pacific/Auckland" )
         )  );
+    }
+
+    public static ZonedDateTime getTime() {
+        return(ZonedDateTime.now(
+                // Specify time zone.
+                ZoneId.of( "Pacific/Auckland" )
+        ));
     }
 }

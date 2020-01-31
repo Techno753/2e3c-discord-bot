@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import tools.AudioTool;
 import tools.TimeTool;
 
+import java.sql.Time;
+import java.time.ZonedDateTime;
 import java.util.concurrent.*;
 
 public class TrackScheduler extends AudioEventAdapter {
@@ -15,8 +17,10 @@ public class TrackScheduler extends AudioEventAdapter {
     private final BlockingQueue<AudioTrack> queue;
     private String lastQueuedTitle;
     private String lastQueuedType;
+
     private Guild g;
     boolean hasPlayedSince = false;
+    ZonedDateTime lastPlayedTime = null;
 
     // constructor
     public TrackScheduler(AudioPlayer player) {
@@ -36,10 +40,8 @@ public class TrackScheduler extends AudioEventAdapter {
         if (!player.startTrack(track, true)) {
             queue.offer(track);
         }
-
-        TimeTool.printTime();
-        System.out.println("Adding new song\n");
         hasPlayedSince = true;
+        lastPlayedTime = TimeTool.getTime(); //time.now
     }
 
     public void setQueuedTitle(String s){
@@ -62,11 +64,9 @@ public class TrackScheduler extends AudioEventAdapter {
         AudioTrack nt = queue.poll();
         if (nt != null) {
             player.startTrack(nt, false);
-            TimeTool.printTime();
-            System.out.println("Playing next track");
+
             hasPlayedSince = true;
-            System.out.println(nt.getInfo().title);
-            System.out.println(nt.getDuration() + "\n");
+            lastPlayedTime = TimeTool.getTime();
         }
     }
 
@@ -92,20 +92,15 @@ public class TrackScheduler extends AudioEventAdapter {
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         // if song ended and none left in queue
         if (queue.size() == 0 && player.getPlayingTrack() == null) {
-            TimeTool.printTime();
-            System.out.println("No song playing and none left in queue. Checking again in 10 minutes\n");
             hasPlayedSince = false;
 
             // perform another check after 10 minutes
             ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
             exec.schedule(new Runnable() {
                 public void run() {
-                    TimeTool.printTime();
-                    System.out.println("Song has been played in last 10 minutes: " + hasPlayedSince);
-                    System.out.println("Song is currently playing: " + (player.getPlayingTrack() != null));
-                    System.out.println("Songs left in queue: " + queue.size() + "\n");
-                    if (hasPlayedSince == false && player.getPlayingTrack() == null && queue.size() == 0) {
-                        System.out.println("10 mins without playing anything. Disconnecting.\n");
+//                    if (hasPlayedSince == false && player.getPlayingTrack() == null && queue.size() == 0 &&
+//                            TimeTool.getTime().compareTo(lastPlayedTime.plusMinutes(5)) >= 0) {
+                    if (hasPlayedSince == false && TimeTool.getTime().compareTo(lastPlayedTime.plusMinutes(10)) >= 0) {
                         AudioTool.disconnectFromVC(g);
                     }
                 }
