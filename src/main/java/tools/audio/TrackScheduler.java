@@ -101,7 +101,7 @@ public class TrackScheduler extends AudioEventAdapter {
             exec.schedule(new Runnable() {
                 public void run() {
                     TimeTool.printTime();
-                    System.out.println("Song has been played in last 10 seconds: " + hasPlayedSince);
+                    System.out.println("Song has been played in last 10 minutes: " + hasPlayedSince);
                     System.out.println("Song is currently playing: " + (player.getPlayingTrack().getInfo().title));
                     System.out.println("Songs left in queue: " + queue.size() + "\n");
                     if (hasPlayedSince == false && player.getPlayingTrack() == null && queue.size() == 0) {
@@ -109,7 +109,7 @@ public class TrackScheduler extends AudioEventAdapter {
                         AudioTool.disconnectFromVC(g);
                     }
                 }
-            }, 10, TimeUnit.SECONDS);
+            }, 10, TimeUnit.MINUTES);
 
         } else if (endReason.mayStartNext) {
             nextTrack();
